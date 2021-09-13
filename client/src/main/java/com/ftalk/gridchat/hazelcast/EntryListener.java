@@ -23,7 +23,7 @@ public class EntryListener implements
     @Override
     public void entryAdded(EntryEvent<String, String> event) {
         System.out.println("Entry Added:" + event.getValue());
-        guiService.postMessage(event.getValue());
+        guiService.postMessage(event.getMember().getAddress().getHost()+":"+event.getMember().getAddress().getPort()+": "+event.getValue());
     }
 
     @Override

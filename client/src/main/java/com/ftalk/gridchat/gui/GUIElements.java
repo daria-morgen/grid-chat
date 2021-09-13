@@ -8,6 +8,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 @Component
 @Getter
@@ -41,9 +43,9 @@ public class GUIElements {
         bottomPanel.add(jTextField, BorderLayout.CENTER);
         bottomPanel.add(jTextField, BorderLayout.WEST);
 
-        jbSendMessage.addFocusListener(new FocusAdapter() {
+        jbSendMessage.addMouseListener(new MouseAdapter() {
             @Override
-            public void focusGained(FocusEvent e) {
+            public void mouseClicked(MouseEvent e) {
                 messageService.sendMessage(jTextField.getText());
                 jTextField.setText("");
             }
