@@ -26,4 +26,9 @@ public class MessageController {
     public int getMessagesSize() {
         return hazelcastService.getMessagesSize();
     }
+
+    @GetMapping("/countOfClients")
+    public int getCountOfClients() {
+        return hazelcastService.getCountOfClients();
+    }
 }

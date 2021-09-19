@@ -1,25 +1,28 @@
 package com.ftalk.gridchat.service;
 
-import com.ftalk.gridchat.hazelcast.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
+import lombok.Getter;
 import org.springframework.stereotype.Service;
 
 @Service
+@Getter
 public class HazelcastClientService {
 
     private final HazelcastInstance hzclient;
 
-    private final MessageService messageService;
+    private final RestTemplateService restTemplate;
 
-    private final GUIService guiService;
-
-    public HazelcastClientService(HazelcastInstance hzclient, MessageService messageService, GUIService guiService) {
+    public HazelcastClientService(HazelcastInstance hzclient, RestTemplateService restTemplate) {
         this.hzclient = hzclient;
-        this.messageService = messageService;
-        this.guiService = guiService;
-        IMap<Object, Object> messages = hzclient.getMap("messages");
-        messages.addEntryListener(new EntryListener(this.guiService), true);
+        this.restTemplate = restTemplate;
+    }
 
+    public IMap<Object, Object> getMessageMap(String messages) {
+        return getHzclient().getMap(messages);
+    }
+
+    public Integer getClientsCount() {
+        return restTemplate.getClientsCount();
     }
 }

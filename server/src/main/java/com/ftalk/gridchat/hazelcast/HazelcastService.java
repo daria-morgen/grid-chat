@@ -32,4 +32,8 @@ public class HazelcastService {
         return queueMessages.size();
     }
 
+    public int getCountOfClients() {
+        return instance.getClientService().getConnectedClients().size();
+    }
+
 }
