@@ -11,9 +11,5 @@ public class MessageService {
         this.restTemplate = restTemplate;
     }
 
-    public void sendMessage(String message) {
-        restTemplate.sendMessage(message);
-    }
-
 
 }
