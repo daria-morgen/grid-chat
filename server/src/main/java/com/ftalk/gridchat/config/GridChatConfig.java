@@ -18,7 +18,6 @@ public class GridChatConfig {
         ISet<Chat> chats = instance.getSet(SET_CHAT_TYPE);
 
         //todo add loading remotes chatlist;
-        chats.add(new Chat("remote_chat", "192.43.124.2","1234", true));
         return chats;
     }
 
@@ -26,6 +25,7 @@ public class GridChatConfig {
     public HazelcastInstance hazelcastInstance() {
         //Следующий код запускает первого члена Hazelcast, создает и использует карту клиентов и очередь
         Config cfg = new Config();
+//        cfg.setClusterName("remote_chat");
         return Hazelcast.newHazelcastInstance(cfg);
     }
 }

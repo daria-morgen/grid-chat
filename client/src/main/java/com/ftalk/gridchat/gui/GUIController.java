@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Set;
 
 import static com.ftalk.gridchat.dto.GridChatConstants.SET_CHAT_TYPE;
 
@@ -33,12 +34,16 @@ public class GUIController {
         chats.addItemListener(new ChatsListener(guiService), true);
         mainFrame.updateChatList(chats);
 
+        ISet<Chat> remoteChats = hazelcastClientService.getRemoteSet(SET_CHAT_TYPE);
+        remoteChats.addItemListener(new ChatsListener(guiService), true);
+        mainFrame.updateChatList(remoteChats);
 
         initCreateNewChatListener();
         initActivateChatListener();
         initMessageSenderListener();
 
         hazelcastClientService.getHzclient().getCluster().addMembershipListener(new ClientListener(guiService));
+        hazelcastClientService.getHzRemoteClient().getCluster().addMembershipListener(new ClientListener(guiService));
 
     }
 
@@ -62,11 +67,26 @@ public class GUIController {
                     mainFrame.updateChatName(elementAt,
                             hazelcastClientService.getClientsCount());
 
-                    IQueue<String> queue = hazelcastClientService.getQueue(elementAt);
-                    queue.addItemListener(new MessageListener(guiService), true);
-                    queue.forEach(k ->
-                            guiService.postMessage(k)
-                    );
+                    Set<Chat> remoteSet = hazelcastClientService.getRemoteSet(SET_CHAT_TYPE);
+                    remoteSet.forEach(r->{
+                        if(r.getName().equals(mainFrame.getJlChatValue().getText())){
+                            if (r.isRemote()){
+                                IQueue<String> queue = hazelcastClientService.getRemoteQueue(elementAt);
+                                queue.addItemListener(new MessageListener(guiService), true);
+                                queue.forEach(k ->
+                                        guiService.postMessage(k)
+                                );
+                            }else{
+                                IQueue<String> queue = hazelcastClientService.getQueue(elementAt);
+                                queue.addItemListener(new MessageListener(guiService), true);
+                                queue.forEach(k ->
+                                        guiService.postMessage(k)
+                                );
+                            }
+                        }
+                    });
+
+
                 }
             }
         });
