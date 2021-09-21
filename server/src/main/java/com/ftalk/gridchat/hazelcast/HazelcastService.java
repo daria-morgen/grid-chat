@@ -17,11 +17,8 @@ public class HazelcastService {
 
     private final HazelcastInstance instance;
 
-    private final ISet<String> setChats;
-
     public HazelcastService(HazelcastInstance instance) {
         this.instance = instance;
-        this.setChats = instance.getSet("chats");
     }
 
     public int getCountOfClients() {

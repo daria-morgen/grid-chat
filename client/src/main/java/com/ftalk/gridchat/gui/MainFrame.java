@@ -1,5 +1,6 @@
 package com.ftalk.gridchat.gui;
 
+import com.ftalk.gridchat.dto.Chat;
 import com.hazelcast.collection.ISet;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.map.IMap;
@@ -127,10 +128,10 @@ public class MainFrame {
         chatListPanel.add(jScrollPane, BorderLayout.CENTER);
     }
 
-    public void updateChatList(ISet<String> chats) {
+    public void updateChatList(ISet<Chat> chats) {
         log.info("updateChatList: {}", chats.size());
-        for (Object chat : chats) {
-            model.addElement((String)chat);
+        for (Chat chat : chats) {
+            model.addElement(chat.getName());
         }
     }
 
@@ -140,7 +141,7 @@ public class MainFrame {
 
     public void updateChatName(String chatName, Integer clientsCount) {
         jlChatValue.setText(chatName);
-        jlNumberOfClients.setText("Количество клиентов в чате: "+String.valueOf(clientsCount));
+        jlNumberOfClients.setText("Количество клиентов в чате: "+ clientsCount);
 
     }
 }

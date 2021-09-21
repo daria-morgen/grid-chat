@@ -1,5 +1,6 @@
 package com.ftalk.gridchat.gui;
 
+import com.ftalk.gridchat.dto.Chat;
 import com.ftalk.gridchat.hazelcast.ChatsListener;
 import com.ftalk.gridchat.hazelcast.ClientListener;
 import com.ftalk.gridchat.hazelcast.MessageListener;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Controller;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
+import static com.ftalk.gridchat.dto.GridChatConstants.SET_CHAT_TYPE;
 
 @Controller
 public class GUIController {
@@ -26,25 +29,36 @@ public class GUIController {
         this.mainFrame = mainFrame;
         this.guiService = guiService;
 
-        mainFrame.getJbNewChat().addMouseListener(new MouseAdapter() {
+        ISet<Chat> chats = hazelcastClientService.getSet(SET_CHAT_TYPE);
+        chats.addItemListener(new ChatsListener(guiService), true);
+        mainFrame.updateChatList(chats);
+
+
+        initCreateNewChatListener();
+        initActivateChatListener();
+        initMessageSenderListener();
+
+        hazelcastClientService.getHzclient().getCluster().addMembershipListener(new ClientListener(guiService));
+
+    }
+
+    private void initMessageSenderListener() {
+        mainFrame.getJbSendMessage().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                String newChatName = mainFrame.getJNewChatField().getText();
-                IQueue<String> newChat = hazelcastClientService.createNewChat(newChatName);
-
-                newChat.addItemListener(new ChatsListener(guiService), true);
-
-                ISet<String> chats = hazelcastClientService.getSet("chats");
-                chats.add(newChatName);
+                if (!mainFrame.getJlChatValue().getText().isEmpty())
+                    hazelcastClientService.sendMessage(
+                            mainFrame.getJlChatValue().getText(),
+                            mainFrame.getJTextField().getText());
             }
         });
+    }
 
-
+    private void initActivateChatListener() {
         mainFrame.getList().addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     String elementAt = (String) mainFrame.getList().getModel().getElementAt(mainFrame.getList().locationToIndex(e.getPoint()));
-
                     mainFrame.updateChatName(elementAt,
                             hazelcastClientService.getClientsCount());
 
@@ -53,28 +67,24 @@ public class GUIController {
                     queue.forEach(k ->
                             guiService.postMessage(k)
                     );
-
                 }
             }
         });
+    }
 
-
-        mainFrame.getJbSendMessage().addMouseListener(new MouseAdapter() {
+    private void initCreateNewChatListener() {
+        mainFrame.getJbNewChat().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (!mainFrame.getJlChatValue().getText().isEmpty())
-                    hazelcastClientService.sendMessage(
-                            mainFrame.getJlChatValue().getText(),
-                            mainFrame.getJTextField().getText());
+                String newChatName = mainFrame.getJNewChatField().getText();
+                ISet<Chat> newChat = hazelcastClientService.createNewChat(newChatName);
 
+                newChat.addItemListener(new ChatsListener(guiService), true);
+
+                ISet<Chat> chats = hazelcastClientService.getSet(SET_CHAT_TYPE);
+                chats.add(new Chat(newChatName));
             }
         });
-
-        ISet<String> chats = hazelcastClientService.getSet("chats");
-        mainFrame.updateChatList(chats);
-        chats.addItemListener(new ChatsListener(guiService), true);
-        hazelcastClientService.getHzclient().getCluster().addMembershipListener(new ClientListener(guiService));
-
     }
 
 

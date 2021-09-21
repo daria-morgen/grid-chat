@@ -1,11 +1,14 @@
 package com.ftalk.gridchat.service;
 
+import com.ftalk.gridchat.dto.Chat;
 import com.hazelcast.collection.IQueue;
 import com.hazelcast.collection.ISet;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 @Getter
@@ -28,13 +31,13 @@ public class HazelcastClientService {
         return restTemplate.getClientsCount();
     }
 
-    public IQueue<String> createNewChat(String text) {
-        return getHzclient().getQueue(text);
+    public ISet<Chat> createNewChat(String text) {
+        return getHzclient().getSet(text);
     }
 
     public void sendMessage(String chatName, String text) {
         IQueue<Object> queue = getHzclient().getQueue(chatName);
-        queue.add(hzclient.getName() + ": " + text);
+        queue.add(LocalDateTime.now()+"-"+hzclient.getName() + ": " + text);
     }
 
     public IQueue<String> getQueue(String elementAt) {
@@ -42,7 +45,7 @@ public class HazelcastClientService {
 
     }
 
-    public ISet<String> getSet(String chats) {
+    public ISet<Chat> getSet(String chats) {
         return getHzclient().getSet(chats);
     }
 }
