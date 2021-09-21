@@ -8,21 +8,18 @@ import com.hazelcast.map.listener.EntryAddedListener;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EntryListener implements
+public class MessageListener implements
         EntryAddedListener<String, String>{
 
     private final GUIService guiService;
 
-    public EntryListener(GUIService guiService) {
+    public MessageListener(GUIService guiService) {
         this.guiService = guiService;
     }
 
     @Override
     public void entryAdded(EntryEvent<String, String> event) {
-        System.out.println("Entry Added:" + event.getValue());
         guiService.postMessage(event.getMember().getAddress().getHost() + ":" + event.getMember().getAddress().getPort() + ": " + event.getValue());
     }
-
-
 }
 

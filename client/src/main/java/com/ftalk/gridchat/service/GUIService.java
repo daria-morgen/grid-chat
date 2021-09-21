@@ -1,17 +1,22 @@
 package com.ftalk.gridchat.service;
 
 import com.ftalk.gridchat.gui.MainFrame;
-import com.ftalk.gridchat.hazelcast.EntryListener;
-import com.hazelcast.map.IMap;
+import com.hazelcast.core.EntryEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class GUIService {
 
+    private static final Logger log = LoggerFactory.getLogger(GUIService.class);
+
     private final MainFrame mainFrame;
+
+    private List<String> chatList = new ArrayList<>();
 
     public GUIService(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
@@ -25,5 +30,16 @@ public class GUIService {
 
     public void updateCountOfClients(int countOfClients) {
         mainFrame.getJlNumberOfClients().setText("Количество клиентов в чате: " + countOfClients);
+    }
+
+    public void addChatToList(String chat) {
+        log.info("Update chatList {}", chat);
+        if (!chatList.contains(chat)) {
+            chatList.add(chat);
+        }
+    }
+
+    public void updateChatList(EntryEvent<String, String> value) {
+        mainFrame.updateChatList(value);
     }
 }
