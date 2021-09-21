@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class MessageController {
+public class ServerController {
     private final HazelcastService hazelcastService;
 
-    public MessageController(HazelcastService hazelcastService) {
+    public ServerController(HazelcastService hazelcastService) {
         this.hazelcastService = hazelcastService;
     }
 
@@ -22,9 +22,9 @@ public class MessageController {
         return hazelcastService.sendMessage(request);
     }
 
-    @GetMapping("/getMessagesSize")
-    public int getMessagesSize() {
-        return hazelcastService.getMessagesSize();
+    @PostMapping("/createNewChat")
+    public Response newChat(@RequestBody Request request) {
+        return hazelcastService.createNewChat(request.getChatName());
     }
 
     @GetMapping("/countOfClients")
