@@ -1,13 +1,13 @@
 package com.ftalk.gridchat.hazelcast;
 
 import com.ftalk.gridchat.service.GUIService;
-import com.hazelcast.core.EntryEvent;
-import com.hazelcast.map.listener.EntryAddedListener;
+import com.hazelcast.collection.ItemEvent;
+import com.hazelcast.collection.ItemListener;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ChatsListener implements
-        EntryAddedListener<String, String>{
+        ItemListener<String> {
 
     private final GUIService guiService;
 
@@ -16,9 +16,14 @@ public class ChatsListener implements
     }
 
     @Override
-    public void entryAdded(EntryEvent<String, String> event) {
-        guiService.updateChatList(event);
+    public void itemAdded(ItemEvent<String> itemEvent) {
+        guiService.updateChatList(itemEvent.getItem());
+
     }
 
+    @Override
+    public void itemRemoved(ItemEvent<String> itemEvent) {
+
+    }
 }
 

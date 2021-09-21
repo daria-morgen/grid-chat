@@ -32,14 +32,7 @@ public class GUIService {
         mainFrame.getJlNumberOfClients().setText("Количество клиентов в чате: " + countOfClients);
     }
 
-    public void addChatToList(String chat) {
-        log.info("Update chatList {}", chat);
-        if (!chatList.contains(chat)) {
-            chatList.add(chat);
-        }
-    }
-
-    public void updateChatList(EntryEvent<String, String> value) {
+    public void updateChatList(String value) {
         mainFrame.updateChatList(value);
     }
 }

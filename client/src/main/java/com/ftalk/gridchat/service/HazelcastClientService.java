@@ -1,12 +1,11 @@
 package com.ftalk.gridchat.service;
 
+import com.hazelcast.collection.IQueue;
+import com.hazelcast.collection.ISet;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 @Getter
@@ -29,13 +28,21 @@ public class HazelcastClientService {
         return restTemplate.getClientsCount();
     }
 
-    public void createNewChat(String text) {
-        getHzclient().getMap("chats").put(text, new HashMap<>());
+    public IQueue<String> createNewChat(String text) {
+        return getHzclient().getQueue(text);
     }
 
     public void sendMessage(String chatName, String text) {
-        Map<String, Map<Integer, String>> chats = getHzclient().getMap("chats");
-        Map<Integer, String> integerStringMap = chats.get(chatName);
-        integerStringMap.put(integerStringMap.size() + 1,text);
+        IQueue<Object> queue = getHzclient().getQueue(chatName);
+        queue.add(hzclient.getName() + ": " + text);
+    }
+
+    public IQueue<String> getQueue(String elementAt) {
+        return getHzclient().getQueue(elementAt);
+
+    }
+
+    public ISet<String> getSet(String chats) {
+        return getHzclient().getSet(chats);
     }
 }

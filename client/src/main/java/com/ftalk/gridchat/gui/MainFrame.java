@@ -1,5 +1,6 @@
 package com.ftalk.gridchat.gui;
 
+import com.hazelcast.collection.ISet;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.map.IMap;
 import lombok.Getter;
@@ -31,6 +32,7 @@ public class MainFrame {
     private JButton jbSendMessage;
     private JScrollPane jsp;
     private JLabel jlChatName;
+    private JLabel jlChatValue;
     private JLabel jlNumberOfClients;
     private JPanel bottomPanel;
 
@@ -50,7 +52,7 @@ public class MainFrame {
 
         this.f = new JFrame("The Twilight Zone");
 
-        f.setBounds(100, 100, 600, 500);
+        f.setBounds(100, 100, 300, 500);
         f.setTitle("GridChat");
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -66,10 +68,12 @@ public class MainFrame {
 
     private void initChatBlock() {
         jlChatName = new JLabel("Имя чата: ");
+        jlChatValue = new JLabel();
         jlNumberOfClients = new JLabel("Количество клиентов в чате: " + 0);
         chatLabelsPanel = new JPanel(new BorderLayout());
-        chatLabelsPanel.add(jlChatName, BorderLayout.NORTH);
-        chatLabelsPanel.add(jlNumberOfClients, BorderLayout.CENTER);
+        chatLabelsPanel.add(jlChatName, BorderLayout.WEST);
+        chatLabelsPanel.add(jlChatValue, BorderLayout.CENTER);
+        chatLabelsPanel.add(jlNumberOfClients, BorderLayout.SOUTH);
 
 
         jTextArea = new JTextArea();
@@ -86,7 +90,6 @@ public class MainFrame {
 
         jTextField = new JTextField("Введите ваше сообщение: ");
         bottomPanel.add(jTextField, BorderLayout.CENTER);
-        bottomPanel.add(jTextField, BorderLayout.WEST);
 
         chatPanel = new JPanel(new BorderLayout());
         chatPanel.add(chatLabelsPanel, BorderLayout.NORTH);
@@ -124,19 +127,19 @@ public class MainFrame {
         chatListPanel.add(jScrollPane, BorderLayout.CENTER);
     }
 
-    public void updateChatList(IMap<Object, Object> chats) {
+    public void updateChatList(ISet<String> chats) {
         log.info("updateChatList: {}", chats.size());
-        for (Map.Entry<Object, Object> chat : chats) {
-            model.addElement(chat.getKey());
+        for (Object chat : chats) {
+            model.addElement((String)chat);
         }
     }
 
-    public void updateChatList(EntryEvent<String, String> value) {
-        model.addElement(value.getKey());
+    public void updateChatList(String value) {
+        model.addElement(value);
     }
 
     public void updateChatName(String chatName, Integer clientsCount) {
-        jlChatName.setText("Имя чата: "+chatName);
+        jlChatValue.setText(chatName);
         jlNumberOfClients.setText("Количество клиентов в чате: "+String.valueOf(clientsCount));
 
     }

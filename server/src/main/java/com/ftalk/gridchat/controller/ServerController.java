@@ -19,12 +19,8 @@ public class ServerController {
 
     @PostMapping("/sendMessage")
     public Response newEmployee(@RequestBody Request request) {
-        return hazelcastService.sendMessage(request);
-    }
-
-    @PostMapping("/createNewChat")
-    public Response newChat(@RequestBody Request request) {
-        return hazelcastService.createNewChat(request.getChatName());
+//        return hazelcastService.sendMessage(request);
+        return null;
     }
 
     @GetMapping("/countOfClients")
