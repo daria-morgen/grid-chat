@@ -20,9 +20,6 @@ import static com.ftalk.gridchat.dto.GridChatConstants.SET_CHAT_TYPE;
 @Service
 public class HazelcastClientService {
 
-    @Value("${clusterName}")
-    private String clusterName;
-
     private final HazelcastInstance hzclient;
 
     private final List<HazelcastInstance> hzRemoteClient; //todo

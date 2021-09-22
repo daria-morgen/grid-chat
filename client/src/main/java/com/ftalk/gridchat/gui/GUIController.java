@@ -18,7 +18,6 @@ public class GUIController {
     private final GUIService guiService;
 
     public GUIController(HazelcastChatService hazelcastChatService, MainFrame mainFrame, GUIService guiService) {
-//        this.hazelcastClientService = hazelcastClientService;
         this.hazelcastChatService = hazelcastChatService;
         this.mainFrame = mainFrame;
         this.guiService = guiService;

@@ -17,8 +17,6 @@ public class GUIService {
 
     private final MainFrame mainFrame;
 
-    private List<String> chatList = new ArrayList<>();
-
     public GUIService(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
     }
