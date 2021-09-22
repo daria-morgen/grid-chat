@@ -15,3 +15,14 @@ Download Hazelcast Management Center
 https://hazelcast.com/open-source-projects/downloads/
 ZIP (115.9 MB)
 java -jar hazelcast-management-center-4.2021.06.jar
+
+
+Для запуска сервера чата на удаленном сервере с чистым IP нужно подключиться к серверу:
+194.87.248.33
+root
+o08z5eZdrP
+
+Перйти в каталог:
+cd /home/projects/grid_chat
+Выполнить:
+java -jar -Dserver.port=8081 -DisRemoteTestServer=true -DclusterName=remote_cluster server-0.0.1-SNAPSHOT.jar

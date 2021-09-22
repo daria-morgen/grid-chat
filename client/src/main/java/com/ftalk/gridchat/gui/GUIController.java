@@ -1,49 +1,34 @@
 package com.ftalk.gridchat.gui;
 
-import com.ftalk.gridchat.dto.Chat;
-import com.ftalk.gridchat.hazelcast.ChatsListener;
-import com.ftalk.gridchat.hazelcast.ClientListener;
-import com.ftalk.gridchat.hazelcast.MessageListener;
 import com.ftalk.gridchat.service.GUIService;
-import com.ftalk.gridchat.service.HazelcastClientService;
-import com.hazelcast.collection.IQueue;
-import com.hazelcast.collection.ISet;
+import com.ftalk.gridchat.service.HazelcastChatService;
 import org.springframework.stereotype.Controller;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Set;
-
-import static com.ftalk.gridchat.dto.GridChatConstants.SET_CHAT_TYPE;
+import java.util.Queue;
 
 @Controller
 public class GUIController {
 
-    private final HazelcastClientService hazelcastClientService;
+    private final HazelcastChatService hazelcastChatService;
 
     private final MainFrame mainFrame;
 
     private final GUIService guiService;
 
-    public GUIController(HazelcastClientService hazelcastClientService, MainFrame mainFrame, GUIService guiService) {
-        this.hazelcastClientService = hazelcastClientService;
+    public GUIController(HazelcastChatService hazelcastChatService, MainFrame mainFrame, GUIService guiService) {
+//        this.hazelcastClientService = hazelcastClientService;
+        this.hazelcastChatService = hazelcastChatService;
         this.mainFrame = mainFrame;
         this.guiService = guiService;
 
-        ISet<Chat> chats = hazelcastClientService.getSet(SET_CHAT_TYPE);
-        chats.addItemListener(new ChatsListener(guiService), true);
-        mainFrame.updateChatList(chats);
-
-        ISet<Chat> remoteChats = hazelcastClientService.getRemoteSet(SET_CHAT_TYPE);
-        remoteChats.addItemListener(new ChatsListener(guiService), true);
-        mainFrame.updateChatList(remoteChats);
+        mainFrame.updateChatList(hazelcastChatService.getChats());
+//        mainFrame.updateChatList(hazelcastChatService.getRemoteChats());
 
         initCreateNewChatListener();
         initActivateChatListener();
         initMessageSenderListener();
-
-        hazelcastClientService.getHzclient().getCluster().addMembershipListener(new ClientListener(guiService));
-        hazelcastClientService.getHzRemoteClient().getCluster().addMembershipListener(new ClientListener(guiService));
 
     }
 
@@ -52,7 +37,7 @@ public class GUIController {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (!mainFrame.getJlChatValue().getText().isEmpty())
-                    hazelcastClientService.sendMessage(
+                    hazelcastChatService.sendMessage(
                             mainFrame.getJlChatValue().getText(),
                             mainFrame.getJTextField().getText());
             }
@@ -63,29 +48,15 @@ public class GUIController {
         mainFrame.getList().addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    String elementAt = (String) mainFrame.getList().getModel().getElementAt(mainFrame.getList().locationToIndex(e.getPoint()));
-                    mainFrame.updateChatName(elementAt,
-                            hazelcastClientService.getClientsCount());
+                    String chatPoint = (String) mainFrame.getList().getModel().getElementAt(mainFrame.getList().locationToIndex(e.getPoint()));
 
-                    Set<Chat> remoteSet = hazelcastClientService.getRemoteSet(SET_CHAT_TYPE);
-                    remoteSet.forEach(r->{
-                        if(r.getName().equals(mainFrame.getJlChatValue().getText())){
-                            if (r.isRemote()){
-                                IQueue<String> queue = hazelcastClientService.getRemoteQueue(elementAt);
-                                queue.addItemListener(new MessageListener(guiService), true);
-                                queue.forEach(k ->
-                                        guiService.postMessage(k)
-                                );
-                            }else{
-                                IQueue<String> queue = hazelcastClientService.getQueue(elementAt);
-                                queue.addItemListener(new MessageListener(guiService), true);
-                                queue.forEach(k ->
-                                        guiService.postMessage(k)
-                                );
-                            }
-                        }
-                    });
+                    //todo create client count on chat
+                    mainFrame.updateChatName(chatPoint,
+                            hazelcastChatService.getClientsCount());
 
+                    Queue<String> messages = hazelcastChatService.getChatMessages(chatPoint);
+
+                    messages.forEach(m -> guiService.postMessage(m));
 
                 }
             }
@@ -97,15 +68,10 @@ public class GUIController {
             @Override
             public void mouseClicked(MouseEvent e) {
                 String newChatName = mainFrame.getJNewChatField().getText();
-                ISet<Chat> newChat = hazelcastClientService.createNewChat(newChatName);
-
-                newChat.addItemListener(new ChatsListener(guiService), true);
-
-                ISet<Chat> chats = hazelcastClientService.getSet(SET_CHAT_TYPE);
-                chats.add(new Chat(newChatName));
+//                mainFrame.getJNewChatField().setText("");
+                hazelcastChatService.createNewChat(newChatName);
             }
         });
     }
-
 
 }

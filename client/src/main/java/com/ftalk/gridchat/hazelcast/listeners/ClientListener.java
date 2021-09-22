@@ -1,4 +1,4 @@
-package com.ftalk.gridchat.hazelcast;
+package com.ftalk.gridchat.hazelcast.listeners;
 
 import com.ftalk.gridchat.service.GUIService;
 import com.hazelcast.client.Client;

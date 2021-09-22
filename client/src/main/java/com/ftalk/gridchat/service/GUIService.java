@@ -1,5 +1,6 @@
 package com.ftalk.gridchat.service;
 
+import com.ftalk.gridchat.dto.Chat;
 import com.ftalk.gridchat.gui.MainFrame;
 import com.hazelcast.core.EntryEvent;
 import org.slf4j.Logger;
@@ -32,7 +33,7 @@ public class GUIService {
         mainFrame.getJlNumberOfClients().setText("Количество клиентов в чате: " + countOfClients);
     }
 
-    public void updateChatList(String value) {
-        mainFrame.updateChatList(value);
+    public void updateChatList(String chatName) {
+        mainFrame.updateChatList(chatName);
     }
 }

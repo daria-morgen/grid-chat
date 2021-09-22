@@ -1,8 +1,6 @@
 package com.ftalk.gridchat.gui;
 
 import com.ftalk.gridchat.dto.Chat;
-import com.hazelcast.collection.ISet;
-import com.hazelcast.core.EntryEvent;
 import com.hazelcast.map.IMap;
 import lombok.Getter;
 import org.slf4j.Logger;
@@ -14,7 +12,7 @@ import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.text.SimpleDateFormat;
-import java.util.Map;
+import java.util.List;
 
 @Component
 @Getter
@@ -128,20 +126,25 @@ public class MainFrame {
         chatListPanel.add(jScrollPane, BorderLayout.CENTER);
     }
 
-    public void updateChatList(ISet<Chat> chats) {
+    public void updateChatList(IMap<String, Chat> chats) {
         log.info("updateChatList: {}", chats.size());
-        for (Chat chat : chats) {
-            model.addElement(chat.getName());
-        }
+        chats.forEach((k, v) -> {
+            model.addElement(v.getName());
+        });
     }
 
-    public void updateChatList(String value) {
-        model.addElement(value);
+    public void updateChatList(String chatName) {
+
+        model.addElement(chatName);
     }
 
     public void updateChatName(String chatName, Integer clientsCount) {
         jlChatValue.setText(chatName);
-        jlNumberOfClients.setText("Количество клиентов в чате: "+ clientsCount);
+        jlNumberOfClients.setText("Количество клиентов в чате: " + clientsCount);
 
+    }
+
+    public void updateChatList(List<IMap<String, Chat>> remoteChats) {
+        remoteChats.forEach(e -> e.forEach(c -> updateChatList(c.getValue().getName())));
     }
 }
