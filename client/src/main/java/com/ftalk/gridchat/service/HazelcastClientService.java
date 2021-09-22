@@ -11,11 +11,9 @@ import com.hazelcast.map.IMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.*;
 
 import static com.ftalk.gridchat.dto.GridChatConstants.SET_CHAT_TYPE;
 
@@ -31,10 +29,15 @@ public class HazelcastClientService {
 
     private final RestTemplateService restTemplate;
 
+    private Map<String, Chat> allLocalClientChats = new HashMap<>();
+
     public HazelcastClientService(HazelcastInstance hzclient, RemoteChatsLoader remoteChatsLoader, RestTemplateService restTemplate) {
         this.hzclient = hzclient;
 
         this.hzRemoteClient = remoteChatsLoader.getHazelcastInstances();
+
+        allLocalClientChats.putAll(hzclient.getMap(SET_CHAT_TYPE));
+        hzRemoteClient.forEach(e -> allLocalClientChats.putAll(e.getMap(SET_CHAT_TYPE)));
 
         this.restTemplate = restTemplate;
     }
@@ -44,17 +47,18 @@ public class HazelcastClientService {
     }
 
     public Map<Object, Object> createNewChat(String newChat) {
-        hzclient.getMap(SET_CHAT_TYPE).put(newChat, new Chat(newChat));
+        Chat chat = new Chat(newChat);
+        hzclient.getMap(SET_CHAT_TYPE).put(newChat, chat);
+        allLocalClientChats.put(newChat, chat);
         return hzclient.getMap(SET_CHAT_TYPE);
     }
 
     public void sendMessage(String chatName, String text) {
-        Map<String, Chat> chatSet = HZCollectionsUtils.getChats(hzclient);
-        Chat chat = chatSet.get(chatName);
+        Chat chat = allLocalClientChats.get(chatName);
         if (chat.isRemote()) {
-            hzRemoteClient.get(0).getQueue(chatName).add(text);
+            hzRemoteClient.get(0).getQueue(chatName).add(LocalDate.now() + ":" + LocalTime.now() + "-" + hzRemoteClient.get(0).getName() + ": " + text);
         } else {
-            hzclient.getQueue(chatName).add(LocalDateTime.now() + "-" + hzclient.getName() + ": " + text);
+            hzclient.getQueue(chatName).add(LocalDate.now() + ":" + LocalTime.now() + "-" + hzclient.getName() + ": " + text);
         }
     }
 
@@ -64,10 +68,16 @@ public class HazelcastClientService {
     }
 
     public Queue<String> getChatMessages(String chatPoint, GUIService guiService) {
+        Chat chat = allLocalClientChats.get(chatPoint);
+        if (chat.isRemote()) {
+            IQueue<String> queue = hzRemoteClient.get(0).getQueue(chatPoint);
+            queue.addItemListener(new MessageListener(guiService), true);
+            return queue;
+        }
+
         IQueue<String> queue = hzclient.getQueue(chatPoint);
         queue.addItemListener(new MessageListener(guiService), true);
-
-        return hzclient.getQueue(chatPoint);
+        return queue;
     }
 
     public IMap<String, Chat> getIChats() {
@@ -76,10 +86,6 @@ public class HazelcastClientService {
 
     public void updateLocalChatList(String chatName, Chat chat) {
         hzclient.getMap(SET_CHAT_TYPE).put(chatName, chat);
-    }
-
-    public void updateLocalChatsList(IMap<String, Chat> chats) {
-        hzclient.getMap(SET_CHAT_TYPE).putAll(chats);
     }
 
     public List<HazelcastInstance> getHzRemoteClient() {

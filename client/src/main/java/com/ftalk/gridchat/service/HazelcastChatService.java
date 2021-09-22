@@ -3,6 +3,7 @@ package com.ftalk.gridchat.service;
 import com.ftalk.gridchat.dto.Chat;
 import com.ftalk.gridchat.hazelcast.HZCollectionsUtils;
 import com.ftalk.gridchat.hazelcast.listeners.ChatsListener;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
@@ -35,13 +36,13 @@ public class HazelcastChatService {
         IMap<String, Chat> chatsSet = hazelcastClientService.getIChats();
         chatsSet.addEntryListener(new ChatsListener(guiService), true);
 
-        hazelcastClientService.getHzRemoteClient().forEach(e -> {
+        List<HazelcastInstance> hzRemoteClient = hazelcastClientService.getHzRemoteClient();
+        for (HazelcastInstance e : hzRemoteClient) {
             IMap<String, Chat> chatMap = HZCollectionsUtils.getIChats(e);
-            hazelcastClientService.updateLocalChatsList(chatMap);
-            chatMap.forEach((k,v)->{
+            chatMap.forEach((k, v) -> {
                 chatMap.addEntryListener(new ChatsListener(guiService), true);
             });
-        });
+        }
     }
 
     public Integer getClientsCount() {
