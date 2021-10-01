@@ -1,11 +1,7 @@
 package com.ftalk.gridchat.hazelcast.listeners;
 
 import com.ftalk.gridchat.dto.Chat;
-import com.ftalk.gridchat.service.GUIService;
-import com.ftalk.gridchat.service.HazelcastChatService;
-import com.ftalk.gridchat.service.HazelcastClientService;
-import com.hazelcast.collection.ItemEvent;
-import com.hazelcast.collection.ItemListener;
+import com.ftalk.gridchat.service.HazelcastService;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.map.MapEvent;
@@ -15,16 +11,16 @@ import org.springframework.stereotype.Component;
 public class RemoteChatsListener implements
         EntryListener<String,Chat> {
 
-    private final HazelcastClientService hazelcastClientService;
+    private final HazelcastService hazelcastService;
 
-    public RemoteChatsListener(HazelcastClientService hazelcastClientService) {
-        this.hazelcastClientService = hazelcastClientService;
+    public RemoteChatsListener(HazelcastService hazelcastService) {
+        this.hazelcastService = hazelcastService;
     }
 
 
     @Override
     public void entryAdded(EntryEvent<String, Chat> entryEvent) {
-        hazelcastClientService.updateLocalChatList(entryEvent.getKey(),entryEvent.getValue());
+        hazelcastService.updateLocalChatList(entryEvent.getKey(),entryEvent.getValue());
     }
 
     @Override
