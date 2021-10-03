@@ -130,6 +130,7 @@ public class SimpleUIController {
             @Override
             public void entryUpdated(EntryEvent<String, Chat> entryEvent) {
                 chatListView.getItems().add(entryEvent.getValue().getName());
+                hazelcastService.updateLocalChatList(entryEvent.getValue().getName(),entryEvent.getValue());
             }
 
             @Override

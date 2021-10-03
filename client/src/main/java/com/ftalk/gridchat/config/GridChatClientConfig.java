@@ -8,13 +8,8 @@ import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class GridChatClientConfig {
-
-    @Value("${clusterName}")
-    private String clusterName;
-
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
         return builder.build();
     }
-
 }

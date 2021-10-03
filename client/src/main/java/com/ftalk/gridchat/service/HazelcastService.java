@@ -42,7 +42,6 @@ public class HazelcastService {
     public Chat createNewChat(String newChat) {
         Chat chat = new Chat(newChat);
         hzclient.getMap(SET_CHAT_TYPE).put(newChat, chat);
-        allLocalClientChats.put(newChat, chat);
         return chat;
     }
 
@@ -54,7 +53,6 @@ public class HazelcastService {
             hzclient.getQueue(chatName).add(LocalDate.now() + ":" + hzclient.getName() + ": " + text);
         }
     }
-
 
     public Queue<String> getChatMessages(String chatName, ItemListener<String> listener) {
         Chat chat = allLocalClientChats.get(chatName);
