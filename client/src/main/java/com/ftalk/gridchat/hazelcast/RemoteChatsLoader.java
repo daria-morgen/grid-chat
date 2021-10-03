@@ -18,12 +18,12 @@ public class RemoteChatsLoader {
 
     //todo added remote loader
     public List<HazelcastInstance> getHazelcastInstances() {
-//        ClientConfig clientRemoteConfig = new ClientConfig();
-//        clientRemoteConfig.setInstanceName(UUID.randomUUID().toString().substring(0, 10));
-//
-//        clientRemoteConfig.getNetworkConfig().addAddress("194.87.248.33:5701");
-//        clientRemoteConfig.setClusterName("remote_cluster");
-//        this.hazelcastInstances.add(HazelcastClient.newHazelcastClient(clientRemoteConfig));
+        ClientConfig clientRemoteConfig = new ClientConfig();
+        clientRemoteConfig.setInstanceName(UUID.randomUUID().toString().substring(0, 10));
+
+        clientRemoteConfig.getNetworkConfig().addAddress("194.87.248.33:5701");
+        clientRemoteConfig.setClusterName("remote_cluster");
+        this.hazelcastInstances.add(HazelcastClient.newHazelcastClient(clientRemoteConfig));
         return this.hazelcastInstances;
     }
 }

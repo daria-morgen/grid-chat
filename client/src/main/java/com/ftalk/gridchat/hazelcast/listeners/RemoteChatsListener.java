@@ -20,7 +20,7 @@ public class RemoteChatsListener implements
 
     @Override
     public void entryAdded(EntryEvent<String, Chat> entryEvent) {
-        hazelcastService.updateLocalChatList(entryEvent.getKey(),entryEvent.getValue());
+        hazelcastService.updateLocalClusterChatList(entryEvent.getKey(),entryEvent.getValue());
     }
 
     @Override

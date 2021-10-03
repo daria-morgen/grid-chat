@@ -12,6 +12,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Queue;
 
@@ -77,6 +78,13 @@ public class SimpleUIController {
             this.chatListView.getItems().add(chat.getValue().getName());
         }
 
+        for (IMap<String, Chat> chatMap : getIRemoteChats()) {
+            for (Map.Entry<String, Chat> chat : chatMap) {
+                this.chatListView.getItems().add(chat.getValue().getName());
+            }
+
+        }
+
         this.chatListView.setOnMouseClicked(event -> {
             if (event.getClickCount() > 1) {
                 chatTextArea.clear();
@@ -114,6 +122,49 @@ public class SimpleUIController {
 
     }
 
+    private ArrayList<IMap<String, Chat>> getIRemoteChats() {
+
+        return hazelcastService.getIRemoteChats(new EntryListener<String, Chat>() {
+
+            @Override
+            public void mapEvicted(MapEvent mapEvent) {
+
+            }
+
+            @Override
+            public void mapCleared(MapEvent mapEvent) {
+
+            }
+
+            @Override
+            public void entryUpdated(EntryEvent<String, Chat> entryEvent) {
+                chatListView.getItems().add(entryEvent.getValue().getName());
+                hazelcastService.updateLocalClusterChatList(entryEvent.getValue().getName(), entryEvent.getValue());
+            }
+
+            @Override
+            public void entryRemoved(EntryEvent<String, Chat> entryEvent) {
+
+            }
+
+            @Override
+            public void entryExpired(EntryEvent<String, Chat> entryEvent) {
+
+            }
+
+            @Override
+            public void entryEvicted(EntryEvent<String, Chat> entryEvent) {
+
+            }
+
+            @Override
+            public void entryAdded(EntryEvent<String, Chat> entryEvent) {
+
+            }
+        });
+
+    }
+
     private IMap<String, Chat> getIChats() {
         return hazelcastService.getIChats(new EntryListener<String, Chat>() {
 
@@ -130,7 +181,7 @@ public class SimpleUIController {
             @Override
             public void entryUpdated(EntryEvent<String, Chat> entryEvent) {
                 chatListView.getItems().add(entryEvent.getValue().getName());
-                hazelcastService.updateLocalChatList(entryEvent.getValue().getName(),entryEvent.getValue());
+//                hazelcastService.updateLocalClusterChatList(entryEvent.getValue().getName(), entryEvent.getValue());
             }
 
             @Override

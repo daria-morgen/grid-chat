@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.*;
 
 import static com.ftalk.gridchat.dto.GridChatConstants.SET_CHAT_TYPE;
@@ -37,6 +36,17 @@ public class HazelcastService {
 
         this.hzRemoteClient = remoteChatsLoader.getHazelcastInstances();
         this.restTemplate = restTemplate;
+    }
+
+    public void registerClient(String userName) {
+        ClientConfig clientConfig = new ClientConfig();
+        clientConfig.setInstanceName(userName);
+        clientConfig.setClusterName(clusterName);
+
+        hzclient = HazelcastClient.newHazelcastClient(clientConfig);
+
+        allLocalClientChats.putAll(hzclient.getMap(SET_CHAT_TYPE));
+        hzRemoteClient.forEach(e -> allLocalClientChats.putAll(e.getMap(SET_CHAT_TYPE)));
     }
 
     public Chat createNewChat(String newChat) {
@@ -74,26 +84,18 @@ public class HazelcastService {
         return iChats;
     }
 
-    public void updateLocalChatList(String chatName, Chat chat) {
+    public void updateLocalClusterChatList(String chatName, Chat chat) {
         hzclient.getMap(SET_CHAT_TYPE).put(chatName, chat);
     }
 
-    public List<IMap<String, Chat>> getRemoteIChats() {
+    public ArrayList<IMap<String, Chat>> getIRemoteChats(EntryListener<String, Chat> entryListener) {
         ArrayList<IMap<String, Chat>> remoteChats = new ArrayList<>();
         hzRemoteClient.forEach(e -> {
             remoteChats.add(e.getMap(SET_CHAT_TYPE));
+            e.getMap(SET_CHAT_TYPE).addEntryListener(entryListener, true);
+
+            allLocalClientChats.putAll(e.getMap(SET_CHAT_TYPE));
         });
         return remoteChats;
-    }
-
-    public void registerClient(String userName) {
-        ClientConfig clientConfig = new ClientConfig();
-        clientConfig.setInstanceName(userName);
-        clientConfig.setClusterName(clusterName);
-
-        hzclient = HazelcastClient.newHazelcastClient(clientConfig);
-
-        allLocalClientChats.putAll(hzclient.getMap(SET_CHAT_TYPE));
-        hzRemoteClient.forEach(e -> allLocalClientChats.putAll(e.getMap(SET_CHAT_TYPE)));
     }
 }

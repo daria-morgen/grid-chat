@@ -1,0 +1,11 @@
+version: '3.9'
+services:
+  grid-chat-server:
+    image: 'grid-chat-server:latest'
+    build:
+      context: .
+    container_name: grid-chat-server
+    ports:
+      - "8083:8083"
+      - "5701:5701"
+    

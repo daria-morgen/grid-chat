@@ -28,12 +28,14 @@ public class GridChatConfig {
         return Hazelcast.newHazelcastInstance(cfg);
     }
 
-
     @Bean
     IMap<String, Chat> iMapTestChats(HazelcastInstance instance) {
+        //для удаленного тестового сервера создаем тестовый чат
         if (isRemoteTestServer) {
             IMap<String, Chat> chats = instance.getMap(SET_CHAT_TYPE);
-            chats.put("remote_cool_chat", new Chat("remote_cool_chat", "", "", true));
+            chats.put("remote_cool_chat",
+                    new Chat("remote_cool_chat", "194.87.248.33", "5701", true)
+            );
             return chats;
         }
         return null;

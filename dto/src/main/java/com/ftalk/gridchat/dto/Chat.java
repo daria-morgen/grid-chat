@@ -14,6 +14,7 @@ public class Chat implements Serializable {
     private String host;
     private String port;
     private boolean isRemote;
+    private Long countOfUser = 0L;
 
     public Chat(String name) {
         this.name = name;
@@ -25,4 +26,5 @@ public class Chat implements Serializable {
         this.port = port;
         this.isRemote = isRemote;
     }
+
 }
