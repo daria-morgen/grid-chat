@@ -1,6 +1,8 @@
 package com.ftalk.gridchat.config;
 
 import com.ftalk.gridchat.dto.GridChatConstants;
+import com.ftalk.gridchat.mediator.Mediator;
+import com.ftalk.gridchat.mediator.impl.HzUIDialog;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.HazelcastInstance;

@@ -5,6 +5,7 @@ import com.ftalk.gridchat.hazelcast.HZCollectionsUtils;
 import com.ftalk.gridchat.hazelcast.RemoteChatsLoader;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.client.config.ClientNetworkConfig;
 import com.hazelcast.collection.IQueue;
 import com.hazelcast.collection.ItemListener;
 import com.hazelcast.core.EntryListener;
@@ -33,9 +34,9 @@ public class HazelcastService {
 
     private final RestTemplateService restTemplate;
 
+
     public HazelcastService(HazelcastInstance hzChatListClient, RemoteChatsLoader remoteChatsLoader, RestTemplateService restTemplate) {
         this.hzChatListClient = hzChatListClient;
-//        this.hzRemoteClient = remoteChatsLoader.getHazelcastInstances();
         this.restTemplate = restTemplate;
     }
 
@@ -59,13 +60,17 @@ public class HazelcastService {
     public Queue<String> getChat(@NonNull String chatName, ItemListener<String> listener) {
         this.chat = HZCollectionsUtils.getChats(hzChatListClient).get(chatName);
 
+        if (hzLocalClient!=null ) {
+            hzLocalClient.shutdown();
+        }
+
         restTemplate.createNewChat(this.chat.getCode());
 
         ClientConfig clientRemoteConfig = new ClientConfig();
         clientRemoteConfig.setInstanceName(userName);
         clientRemoteConfig.setClusterName(chat.getCode());
-
-
+        ClientNetworkConfig networkConfig = clientRemoteConfig.getNetworkConfig();
+        networkConfig.addAddress("127.0.0.1", "127.0.0.1:5704");
         hzLocalClient = HazelcastClient.newHazelcastClient(clientRemoteConfig);
 
         IQueue<String> queue = hzLocalClient.getQueue(chat.getCode());
