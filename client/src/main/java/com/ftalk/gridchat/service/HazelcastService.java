@@ -10,92 +10,72 @@ import com.hazelcast.collection.ItemListener;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Queue;
 
 import static com.ftalk.gridchat.dto.GridChatConstants.SET_CHAT_TYPE;
 
 @Service
 public class HazelcastService {
 
-    @Value("${clusterName}")
-    private String clusterName;
+    private String userName;
 
-    private HazelcastInstance hzclient;
+    private Chat chat;
 
-    private final List<HazelcastInstance> hzRemoteClient; //todo
+    private final HazelcastInstance hzChatListClient;
+
+    private HazelcastInstance hzLocalClient;
+
+    private HazelcastInstance hzRemoteClient; //todo
 
     private final RestTemplateService restTemplate;
 
-    private Map<String, Chat> allLocalClientChats = new HashMap<>();
-
-    public HazelcastService(RemoteChatsLoader remoteChatsLoader, RestTemplateService restTemplate) {
-
-        this.hzRemoteClient = remoteChatsLoader.getHazelcastInstances();
+    public HazelcastService(HazelcastInstance hzChatListClient, RemoteChatsLoader remoteChatsLoader, RestTemplateService restTemplate) {
+        this.hzChatListClient = hzChatListClient;
+//        this.hzRemoteClient = remoteChatsLoader.getHazelcastInstances();
         this.restTemplate = restTemplate;
     }
 
     public void registerClient(String userName) {
-        ClientConfig clientConfig = new ClientConfig();
-        clientConfig.setInstanceName(userName);
-        clientConfig.setClusterName(clusterName);
-
-        hzclient = HazelcastClient.newHazelcastClient(clientConfig);
-
-        allLocalClientChats.putAll(hzclient.getMap(SET_CHAT_TYPE));
-        hzRemoteClient.forEach(e -> allLocalClientChats.putAll(e.getMap(SET_CHAT_TYPE)));
+        this.userName = userName;
     }
 
-    public Chat createNewChat(String newChat) {
-        Chat chat = new Chat(newChat);
-        hzclient.getMap(SET_CHAT_TYPE).put(newChat, chat);
-        return chat;
-    }
-
-    public void sendMessage(String chatName, String text) {
-        Chat chat = allLocalClientChats.get(chatName);
-        if (chat.isRemote()) {
-            hzRemoteClient.get(0).getQueue(chatName).add(LocalDate.now() + ":" + hzRemoteClient.get(0).getName() + ": " + text);
-        } else {
-            hzclient.getQueue(chatName).add(LocalDate.now() + ":" + hzclient.getName() + ": " + text);
-        }
-    }
-
-    public Queue<String> getChatMessages(String chatName, ItemListener<String> listener) {
-        Chat chat = allLocalClientChats.get(chatName);
-
-        if (chat.isRemote()) {
-            IQueue<String> queue = hzRemoteClient.get(0).getQueue(chatName);
-            queue.addItemListener(listener, true);
-            return queue;
-        }
-
-        IQueue<String> queue = hzclient.getQueue(chatName);
-        queue.addItemListener(listener, true);
-        return queue;
-    }
-
-    public IMap<String, Chat> getIChats(EntryListener<String, Chat> entryListener) {
-        IMap<String, Chat> iChats = HZCollectionsUtils.getIChats(hzclient);
+    public IMap<String, Chat> getChatList(EntryListener<String, Chat> entryListener) {
+        IMap<String, Chat> iChats = HZCollectionsUtils.getIChats(hzChatListClient);
         iChats.addEntryListener(entryListener, true);
         return iChats;
     }
 
-    public void updateLocalClusterChatList(String chatName, Chat chat) {
-        hzclient.getMap(SET_CHAT_TYPE).put(chatName, chat);
+    public void createNewChat(String newChat) {
+        Chat chat = new Chat(newChat);
+        hzChatListClient.getMap(SET_CHAT_TYPE).put(newChat, chat);
     }
 
-    public ArrayList<IMap<String, Chat>> getIRemoteChats(EntryListener<String, Chat> entryListener) {
-        ArrayList<IMap<String, Chat>> remoteChats = new ArrayList<>();
-        hzRemoteClient.forEach(e -> {
-            remoteChats.add(e.getMap(SET_CHAT_TYPE));
-            e.getMap(SET_CHAT_TYPE).addEntryListener(entryListener, true);
+    //При подключении к чату создаем клиента и сервер.
+    //Текущий пользователь больше не хранит данные о прошлом чате.
+    public Queue<String> getChat(@NonNull String chatName, ItemListener<String> listener) {
+        this.chat = HZCollectionsUtils.getChats(hzChatListClient).get(chatName);
 
-            allLocalClientChats.putAll(e.getMap(SET_CHAT_TYPE));
-        });
-        return remoteChats;
+        restTemplate.createNewChat(this.chat.getCode());
+
+        ClientConfig clientRemoteConfig = new ClientConfig();
+        clientRemoteConfig.setInstanceName(userName);
+        clientRemoteConfig.setClusterName(chat.getCode());
+
+
+        hzLocalClient = HazelcastClient.newHazelcastClient(clientRemoteConfig);
+
+        IQueue<String> queue = hzLocalClient.getQueue(chat.getCode());
+        queue.addItemListener(listener, true);
+
+        return queue;
     }
+
+    public void sendMessage(String text) {
+        hzLocalClient.getQueue(this.chat.getCode()).add(LocalDate.now() + ":" + this.userName + ": " + text);
+    }
+
 }

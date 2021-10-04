@@ -31,4 +31,9 @@ public class RestTemplateService {
         restTemplate.postForObject(
                 host+"/sendMessage", new Request(message), Response.class);
     }
+
+    public void createNewChat(String newChat) {
+        restTemplate.postForObject(
+                host+"/createServerInstance", newChat, Integer.class);
+    }
 }

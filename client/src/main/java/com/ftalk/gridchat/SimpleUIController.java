@@ -74,15 +74,11 @@ public class SimpleUIController {
         this.sendMessageTextField.setDisable(false);
         this.sendMessageButton.setDisable(false);
 
+        //формируем список чатов из опубликованных в локальной сети
+        //для 1 клиента он будет пуст. Подписываемся на обновление этого списка.
+        //в локальном кластере(chats_cluster) хранится только список чатов.
         for (Map.Entry<String, Chat> chat : getIChats()) {
             this.chatListView.getItems().add(chat.getValue().getName());
-        }
-
-        for (IMap<String, Chat> chatMap : getIRemoteChats()) {
-            for (Map.Entry<String, Chat> chat : chatMap) {
-                this.chatListView.getItems().add(chat.getValue().getName());
-            }
-
         }
 
         this.chatListView.setOnMouseClicked(event -> {
@@ -90,7 +86,7 @@ public class SimpleUIController {
                 chatTextArea.clear();
 
                 String chatName = (String) this.chatListView.getFocusModel().getFocusedItem();
-                Queue<String> chatMessages = hazelcastService.getChatMessages(chatName, new ItemListener<String>() {
+                Queue<String> chat = hazelcastService.getChat(chatName, new ItemListener<String>() {
                     @Override
                     public void itemAdded(ItemEvent<String> itemEvent) {
                         chatTextArea.appendText(itemEvent.getItem());
@@ -105,7 +101,7 @@ public class SimpleUIController {
 
                 chatNameLabel.setText(chatName);
 
-                for (String chatMessage : chatMessages) {
+                for (String chatMessage : chat) {
                     chatTextArea.appendText(chatMessage);
                     chatTextArea.appendText("\n");
                 }
@@ -117,57 +113,13 @@ public class SimpleUIController {
         });
 
         this.sendMessageButton.setOnAction(actionEvent -> {
-            hazelcastService.sendMessage(chatNameLabel.getText(), sendMessageTextField.getText());
-        });
-
-    }
-
-    private ArrayList<IMap<String, Chat>> getIRemoteChats() {
-
-        return hazelcastService.getIRemoteChats(new EntryListener<String, Chat>() {
-
-            @Override
-            public void mapEvicted(MapEvent mapEvent) {
-
-            }
-
-            @Override
-            public void mapCleared(MapEvent mapEvent) {
-
-            }
-
-            @Override
-            public void entryUpdated(EntryEvent<String, Chat> entryEvent) {
-                chatListView.getItems().add(entryEvent.getValue().getName());
-                hazelcastService.updateLocalClusterChatList(entryEvent.getValue().getName(), entryEvent.getValue());
-            }
-
-            @Override
-            public void entryRemoved(EntryEvent<String, Chat> entryEvent) {
-
-            }
-
-            @Override
-            public void entryExpired(EntryEvent<String, Chat> entryEvent) {
-
-            }
-
-            @Override
-            public void entryEvicted(EntryEvent<String, Chat> entryEvent) {
-
-            }
-
-            @Override
-            public void entryAdded(EntryEvent<String, Chat> entryEvent) {
-
-            }
+            hazelcastService.sendMessage(sendMessageTextField.getText());
         });
 
     }
 
     private IMap<String, Chat> getIChats() {
-        return hazelcastService.getIChats(new EntryListener<String, Chat>() {
-
+        return hazelcastService.getChatList(new EntryListener<String, Chat>() {
             @Override
             public void mapEvicted(MapEvent mapEvent) {
 
@@ -181,7 +133,6 @@ public class SimpleUIController {
             @Override
             public void entryUpdated(EntryEvent<String, Chat> entryEvent) {
                 chatListView.getItems().add(entryEvent.getValue().getName());
-//                hazelcastService.updateLocalClusterChatList(entryEvent.getValue().getName(), entryEvent.getValue());
             }
 
             @Override

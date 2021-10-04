@@ -1,6 +1,7 @@
 package com.ftalk.gridchat.config;
 
 import com.ftalk.gridchat.dto.Chat;
+import com.ftalk.gridchat.dto.GridChatConstants;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -14,17 +15,14 @@ import static com.ftalk.gridchat.dto.GridChatConstants.SET_CHAT_TYPE;
 @Configuration
 public class GridChatConfig {
 
-    @Value("${clusterName}")
-    private String clusterName;
-
     @Value("${isRemoteTestServer}")
     private boolean isRemoteTestServer;
 
     @Bean
     public HazelcastInstance hazelcastInstance() {
-        //Следующий код запускает члена Hazelcast
+        //Следующий код запускает члена Hazelcast, который хранит список доступных чатов
         Config cfg = new Config();
-        cfg.setClusterName(clusterName);
+        cfg.setClusterName(GridChatConstants.CHAT_LIST);
         return Hazelcast.newHazelcastInstance(cfg);
     }
 
