@@ -13,8 +13,7 @@ import java.util.UUID;
 public class Chat implements Serializable {
     private String name;
     private String code;
-    private String host;
-    private String port;
+    private Server server;
     private boolean isTransfer;
 
     public Chat(String name) {
@@ -22,10 +21,9 @@ public class Chat implements Serializable {
         this.code = UUID.randomUUID().toString().substring(0, 10);
     }
 
-    public Chat(String name, String host, String port, boolean isTransfer) {
+    public Chat(String name, Server server, boolean isTransfer) {
         this.name = name;
-        this.host = host;
-        this.port = port;
+        this.server = server;
         this.isTransfer = isTransfer;
         this.code = UUID.randomUUID().toString().substring(0, 10);
     }

@@ -2,8 +2,16 @@ package com.ftalk.gridchat.dto;
 
 public class GridChatConstants {
 
-    public static final String SET_CHAT_TYPE = "chats";
+    //Map со списком локальных чатов
+    public static final String MAP_CHATS = "MAP_CHATS";
 
-    public static final String CHAT_LIST = "CHAT_LIST";
+    //Map со списком удаленных чатов
+    public static final String REMOTE_MAP_CHATS = "REMOTE_MAP_CHATS";
+
+    //Имя локального кластера, хранящего скиски чатов
+    public static final String CLUSTER_CHAT_LIST = "CLUSTER_CHAT_LIST";
+
+    //Имя супер кластера
+    public static final String CLUSTER_SUPER_CLUSTER = "CLUSTER_SUPER_CLUSTER";
 
 }

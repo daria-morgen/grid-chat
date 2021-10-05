@@ -9,7 +9,6 @@ import com.hazelcast.collection.ItemEvent;
 import com.hazelcast.collection.ItemListener;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
-import com.hazelcast.map.IMap;
 import com.hazelcast.map.MapEvent;
 import javafx.application.Platform;
 import javafx.scene.control.*;
@@ -57,9 +56,8 @@ public class HzUIDialog implements Mediator {
                             //формируем список чатов из опубликованных в локальной сети
                             //для 1 клиента он будет пуст. Подписываемся на обновление этого списка.
                             //в локальном кластере(chats_cluster) хранится только список чатов.
-                            for (Map.Entry<String, Chat> chat : getChatList()) {
-                                this.chatListView.getItems().add(chat.getValue().getName());
-                            }
+//                            for (Map<String, Chat> chat : ) {
+                            getChatList().forEach((k, v) -> this.chatListView.getItems().add(v.getName()));
 
                             this.nChatTextField.setDisable(false);
                             this.nChatButton.setDisable(false);
@@ -94,15 +92,16 @@ public class HzUIDialog implements Mediator {
                             chatTextArea.appendText("\n");
                         }
 
-                            this.chatNameLabel.setDisable(false);
-                            this.chatTextArea.setDisable(false);
-                            this.sendMessageTextField.setDisable(false);
-                            this.sendMessageButton.setDisable(false);
+                        this.chatNameLabel.setDisable(false);
+                        this.chatTextArea.setDisable(false);
+                        this.sendMessageTextField.setDisable(false);
+                        this.sendMessageButton.setDisable(false);
                     }
                 });
 
                 this.nChatButton.setOnAction(actionEvent -> {
-                    hazelcastService.createNewChat(nChatTextField.getText());
+                    boolean isPublic = false;
+                    hazelcastService.createNewChat(nChatTextField.getText(), isPublic);
                 });
 
                 this.sendMessageButton.setOnAction(actionEvent -> {
@@ -147,7 +146,7 @@ public class HzUIDialog implements Mediator {
         }
     }
 
-    private IMap<String, Chat> getChatList() {
+    private Map<String, Chat> getChatList() {
         return hazelcastService.getChatList(new EntryListener<String, Chat>() {
             @Override
             public void mapEvicted(MapEvent mapEvent) {
