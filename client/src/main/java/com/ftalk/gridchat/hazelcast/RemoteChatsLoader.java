@@ -13,7 +13,7 @@ public class RemoteChatsLoader {
 
     //todo added remote loader
     public List<Server> getPublicIPServers() {
-//        publicIPServers.add(new Server("194.87.248.33", "5701"));
+        publicIPServers.add(new Server("194.87.248.33", "5701"));
         return this.publicIPServers;
     }
 

@@ -28,6 +28,8 @@ public class HazelcastService {
 
     private String userName;
 
+    private String hzRemoteUserName;
+
     private Chat chat;
 
     private final HazelcastInstance hzChatListClient;
@@ -62,6 +64,7 @@ public class HazelcastService {
 
     public void registerClient(String userName) {
         this.userName = userName;
+        this.hzRemoteUserName = "r_"+userName;
     }
 
     public Map<String, Chat> getChatList(EntryListener<String, Chat> entryListener) {
@@ -106,14 +109,17 @@ public class HazelcastService {
             if (hzRemoteClient != null) {
                 hzRemoteClient.shutdown();
             }
+            if (hzLocalClient != null) {
+                hzLocalClient.shutdown();
+            }
 
             //при подключении к удаленному чату, кладем его в локальный кластер.
             hzChatListClient.getMap(REMOTE_MAP_CHATS).put(chatName, chat);
 
             // создаем клиента, слушающего  удаленный чат на сервере.
             ClientConfig clientRemoteConfig = new ClientConfig();
-            clientRemoteConfig.setInstanceName(userName);
-            clientRemoteConfig.setClusterName(chat.getCode());
+            clientRemoteConfig.setInstanceName(hzRemoteUserName);
+            clientRemoteConfig.setClusterName(CLUSTER_SUPER_CLUSTER);
             clientRemoteConfig.getNetworkConfig().addAddress(chat.getServer().getURL());
             hzRemoteClient = HazelcastClient.newHazelcastClient(clientRemoteConfig);
 
@@ -124,6 +130,9 @@ public class HazelcastService {
 
         } else {
 
+            if (hzRemoteClient != null) {
+                hzRemoteClient.shutdown();
+            }
             if (hzLocalClient != null) {
                 hzLocalClient.shutdown();
             }
