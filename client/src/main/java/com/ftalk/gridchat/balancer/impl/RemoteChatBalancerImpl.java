@@ -4,7 +4,7 @@ import com.ftalk.gridchat.balancer.RemoteChatBalancer;
 import com.ftalk.gridchat.dto.Chat;
 import com.ftalk.gridchat.dto.Server;
 import com.ftalk.gridchat.hazelcast.PublicIPLoader;
-import jdk.internal.joptsimple.internal.Strings;
+import org.apache.logging.log4j.util.Strings;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,6 +42,11 @@ public class RemoteChatBalancerImpl implements RemoteChatBalancer {
             return collect.get(0).getURL();
 
         return Strings.EMPTY;
+    }
+
+    @Override
+    public List<Server> getPublicIPServers() {
+        return publicIPLoader.getPublicIPServers();
     }
 
 }

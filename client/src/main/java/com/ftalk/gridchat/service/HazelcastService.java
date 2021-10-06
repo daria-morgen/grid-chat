@@ -3,9 +3,6 @@ package com.ftalk.gridchat.service;
 import com.ftalk.gridchat.balancer.RemoteChatBalancer;
 import com.ftalk.gridchat.dto.Chat;
 import com.ftalk.gridchat.hazelcast.HZCollectionsUtils;
-import com.hazelcast.client.Client;
-import com.hazelcast.client.ClientListener;
-import com.hazelcast.client.ClientService;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientNetworkConfig;
@@ -58,49 +55,10 @@ public class HazelcastService {
             ClientConfig clientRemoteConfig = new ClientConfig();
             clientRemoteConfig.setInstanceName("client_sc_" + UUID.randomUUID().toString().substring(0, 5));
             clientRemoteConfig.setClusterName(CLUSTER_SUPER_CLUSTER);
-            clientRemoteConfig.getNetworkConfig().addAddress(remoteChatBalancer.getPublicIPServerURL());
+            remoteChatBalancer.getPublicIPServers().forEach(e -> clientRemoteConfig.getNetworkConfig().addAddress(e.getURL()));
 
             hzRemoteChatListClient = HazelcastClient.newHazelcastClient(clientRemoteConfig);
-            final ClientService clientService = hzRemoteChatListClient.getClientService();
 
-            clientService.addClientListener(new ClientListener() {
-                @Override
-                public void clientConnected(Client client) {
-                    //Handle client connected event
-                }
-
-                @Override
-                public void clientDisconnected(Client client) {
-                    hzRemoteChatListClient.shutdown();
-
-                    String newPublicIPServerURL = remoteChatBalancer.getAnotherPublicIPServerURL(
-                            client.getSocketAddress().getHostString()
-                    );
-
-                    if (!newPublicIPServerURL.isEmpty()) {
-                        ClientConfig clientRemoteConfig = new ClientConfig();
-                        clientRemoteConfig.setInstanceName("client_sc_" + UUID.randomUUID().toString().substring(0, 5));
-                        clientRemoteConfig.setClusterName(CLUSTER_SUPER_CLUSTER);
-                        clientRemoteConfig.getNetworkConfig().addAddress(remoteChatBalancer.getPublicIPServerURL());
-
-                        hzRemoteChatListClient = HazelcastClient.newHazelcastClient(clientRemoteConfig);
-                        final ClientService clientService = hzRemoteChatListClient.getClientService();
-
-                        clientService.addClientListener(new ClientListener() {
-                            @Override
-                            public void clientConnected(Client client) {
-                                //Handle client connected event
-                            }
-
-                            @Override
-                            public void clientDisconnected(Client client) {
-                                hzRemoteChatListClient.shutdown();
-                            }
-                        });
-                    }
-
-                }
-            });
         }
     }
 
@@ -162,6 +120,8 @@ public class HazelcastService {
             clientRemoteConfig.setInstanceName(hzRemoteUserName);
             clientRemoteConfig.setClusterName(CLUSTER_SUPER_CLUSTER);
             clientRemoteConfig.getNetworkConfig().addAddress(chat.getServer().getURL());
+            remoteChatBalancer.getPublicIPServers().forEach(e -> clientRemoteConfig.getNetworkConfig().addAddress(e.getURL()));
+
             hzRemoteClient = HazelcastClient.newHazelcastClient(clientRemoteConfig);
 
             //получаем очередь сообщений с удаленного сервера.

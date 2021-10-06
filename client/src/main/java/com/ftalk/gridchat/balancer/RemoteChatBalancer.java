@@ -1,7 +1,9 @@
 package com.ftalk.gridchat.balancer;
 
 import com.ftalk.gridchat.dto.Chat;
-import com.hazelcast.core.HazelcastInstance;
+import com.ftalk.gridchat.dto.Server;
+
+import java.util.List;
 
 public interface RemoteChatBalancer {
 
@@ -12,4 +14,6 @@ public interface RemoteChatBalancer {
     String getPublicIPServerURL();
 
     String getAnotherPublicIPServerURL(String currentURL);
+
+    List<Server> getPublicIPServers();
 }
