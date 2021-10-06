@@ -24,6 +24,9 @@ public class SimpleUIController {
     public Button nChatButton;
 
     @FXML
+    public CheckBox nChatCheckBox;
+
+    @FXML
     public ListView chatListView;
 
     @FXML
@@ -51,6 +54,7 @@ public class SimpleUIController {
         mediator.initialUiObject(this.loginButton, UIComponentNames.LOGIN_BUTTON);
         mediator.initialUiObject(this.nChatTextField, UIComponentNames.N_CHAT_TEXT_FIELD);
         mediator.initialUiObject(this.nChatButton, UIComponentNames.N_CHAT_BUTTON);
+        mediator.initialUiObject(this.nChatCheckBox, UIComponentNames.N_CHAT_CHECK_BOX);
         mediator.initialUiObject(this.chatListView, UIComponentNames.CHAT_LIST_VIEW);
         mediator.initialUiObject(this.chatNameLabel, UIComponentNames.CHAT_NAME_LABEL);
         mediator.initialUiObject(this.chatTextArea, UIComponentNames.CHAT_TEXT_AREA);

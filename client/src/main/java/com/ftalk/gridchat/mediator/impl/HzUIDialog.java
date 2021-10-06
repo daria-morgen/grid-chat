@@ -28,6 +28,8 @@ public class HzUIDialog implements Mediator {
 
     private Button nChatButton;
 
+    private CheckBox nChatCheckBox;
+
     private ListView chatListView;
 
     private Label chatNameLabel;
@@ -100,8 +102,7 @@ public class HzUIDialog implements Mediator {
                 });
 
                 this.nChatButton.setOnAction(actionEvent -> {
-                    boolean isPublic = false;
-                    hazelcastService.createNewChat(nChatTextField.getText(), isPublic);
+                    hazelcastService.createNewChat(nChatTextField.getText(), nChatCheckBox.isSelected());
                 });
 
                 this.sendMessageButton.setOnAction(actionEvent -> {
@@ -126,6 +127,9 @@ public class HzUIDialog implements Mediator {
                 break;
             case N_CHAT_BUTTON:
                 this.nChatButton = (Button) uiSender;
+                break;
+            case N_CHAT_CHECK_BOX:
+                this.nChatCheckBox = (CheckBox) uiSender;
                 break;
             case CHAT_LIST_VIEW:
                 this.chatListView = (ListView) uiSender;

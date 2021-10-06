@@ -3,31 +3,32 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            prefHeight="400.0"
-            prefWidth="500.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            prefHeight="400.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.ftalk.gridchat.SimpleUIController">
 
     <TextField fx:id="loginTextField" layoutX="14.0" layoutY="14.0" prefHeight="25.0" prefWidth="115.0" text="login"
                AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0"/>
     <Button fx:id="loginButton" layoutX="125.0" layoutY="5.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0"
-            text="Войти"
-            AnchorPane.leftAnchor="125.0" AnchorPane.topAnchor="5.0"/>
+            text="Войти" AnchorPane.leftAnchor="125.0" AnchorPane.topAnchor="5.0"/>
     <TextField fx:id="nChatTextField" disable="true" layoutX="5.0" layoutY="40.0" prefHeight="25.0" prefWidth="115.0"
                AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="40.0"/>
-    <Button fx:id="nChatButton" disable="true" layoutX="125.0" layoutY="40.0" mnemonicParsing="false" prefHeight="25.0"
-            prefWidth="75.0"
-            text="Создать" AnchorPane.leftAnchor="125.0"/>
-    <ListView fx:id="chatListView" disable="true" layoutX="5.0" layoutY="46.0" prefHeight="319.0" prefWidth="201.0"
-              AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="80.0"/>
+    <CheckBox fx:id="nChatCheckBox" disable="true" layoutX="125.0" layoutY="44.0" mnemonicParsing="false"
+              prefHeight="17.0" prefWidth="60.0" text="public"/>
+    <Button fx:id="nChatButton" disable="true" layoutX="5.0" layoutY="65.0" mnemonicParsing="false" prefHeight="25.0"
+            prefWidth="75.0" text="Создать" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="70.0"/>
+    <ListView fx:id="chatListView" disable="true" layoutX="5.0" layoutY="102.0" prefHeight="293.0" prefWidth="201.0"
+              AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="100.0"/>
 
-    <Button fx:id="sendMessageButton" disable="true" layoutX="420.0" layoutY="325.0" mnemonicParsing="false" prefHeight="25.0"
-            prefWidth="75.0" text="Отправить" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="5.0"/>
-    <TextField fx:id="sendMessageTextField" disable="true" layoutX="222.0" layoutY="334.0" prefHeight="25.0" prefWidth="195.0"
-               AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="222.0" AnchorPane.rightAnchor="83.0"/>
+    <Button fx:id="sendMessageButton" disable="true" layoutX="420.0" layoutY="325.0" mnemonicParsing="false"
+            prefHeight="25.0" prefWidth="75.0" text="Отправить" AnchorPane.bottomAnchor="5.0"
+            AnchorPane.rightAnchor="5.0"/>
+    <TextField fx:id="sendMessageTextField" disable="true" layoutX="222.0" layoutY="334.0" prefHeight="25.0"
+               prefWidth="195.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="222.0"
+               AnchorPane.rightAnchor="83.0"/>
     <TextArea fx:id="chatTextArea" disable="true" layoutX="222.0" layoutY="40.0" prefHeight="284.0" prefWidth="273.0"
               AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="222.0" AnchorPane.rightAnchor="5.0"
               AnchorPane.topAnchor="40.0"/>
-    <Label  fx:id="chatNameLabel" disable="true" layoutX="222.0" layoutY="5.0" prefHeight="25.0" prefWidth="273.0" text="Имя чата"
-           AnchorPane.leftAnchor="222.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0"/>
+    <Label fx:id="chatNameLabel" disable="true" layoutX="222.0" layoutY="5.0" prefHeight="25.0" prefWidth="273.0"
+           text="Имя чата" AnchorPane.leftAnchor="222.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0"/>
 
 </AnchorPane>
