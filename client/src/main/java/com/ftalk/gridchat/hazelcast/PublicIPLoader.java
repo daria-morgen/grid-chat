@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class RemoteChatsLoader {
+public class PublicIPLoader {
 
     private List<Server> publicIPServers = new ArrayList<>();
 
@@ -18,7 +18,4 @@ public class RemoteChatsLoader {
         return this.publicIPServers;
     }
 
-    public Server getPublicServer() {
-        return publicIPServers.get(0);
-    }
 }

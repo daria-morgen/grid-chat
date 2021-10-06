@@ -1,8 +1,11 @@
 package com.ftalk.gridchat.service;
 
+import com.ftalk.gridchat.balancer.RemoteChatBalancer;
 import com.ftalk.gridchat.dto.Chat;
 import com.ftalk.gridchat.hazelcast.HZCollectionsUtils;
-import com.ftalk.gridchat.hazelcast.RemoteChatsLoader;
+import com.hazelcast.client.Client;
+import com.hazelcast.client.ClientListener;
+import com.hazelcast.client.ClientService;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientNetworkConfig;
@@ -41,30 +44,69 @@ public class HazelcastService {
 
     private final RestTemplateService restTemplate;
 
-    private final RemoteChatsLoader remoteChatsLoader;
+    private final RemoteChatBalancer remoteChatBalancer;
 
 
     public HazelcastService(@Qualifier("hazelcastLocalChatsInstance") HazelcastInstance hzChatListClient,
                             RestTemplateService restTemplate,
-                            RemoteChatsLoader remoteChatsLoader) {
+                            RemoteChatBalancer remoteChatBalancer) {
         this.hzChatListClient = hzChatListClient;
         this.restTemplate = restTemplate;
-        this.remoteChatsLoader = remoteChatsLoader;
+        this.remoteChatBalancer = remoteChatBalancer;
 
-        if (remoteChatsLoader.getPublicIPServers().size() > 0) {
+        if (remoteChatBalancer.getPublicIPSize() > 0) {
             ClientConfig clientRemoteConfig = new ClientConfig();
             clientRemoteConfig.setInstanceName("client_sc_" + UUID.randomUUID().toString().substring(0, 5));
             clientRemoteConfig.setClusterName(CLUSTER_SUPER_CLUSTER);
+            clientRemoteConfig.getNetworkConfig().addAddress(remoteChatBalancer.getPublicIPServerURL());
 
-            clientRemoteConfig.getNetworkConfig().addAddress(remoteChatsLoader.getPublicIPServers().get(0).getURL());
-            this.hzRemoteChatListClient = HazelcastClient.newHazelcastClient(clientRemoteConfig);
+            hzRemoteChatListClient = HazelcastClient.newHazelcastClient(clientRemoteConfig);
+            final ClientService clientService = hzRemoteChatListClient.getClientService();
+
+            clientService.addClientListener(new ClientListener() {
+                @Override
+                public void clientConnected(Client client) {
+                    //Handle client connected event
+                }
+
+                @Override
+                public void clientDisconnected(Client client) {
+                    hzRemoteChatListClient.shutdown();
+
+                    String newPublicIPServerURL = remoteChatBalancer.getAnotherPublicIPServerURL(
+                            client.getSocketAddress().getHostString()
+                    );
+
+                    if (!newPublicIPServerURL.isEmpty()) {
+                        ClientConfig clientRemoteConfig = new ClientConfig();
+                        clientRemoteConfig.setInstanceName("client_sc_" + UUID.randomUUID().toString().substring(0, 5));
+                        clientRemoteConfig.setClusterName(CLUSTER_SUPER_CLUSTER);
+                        clientRemoteConfig.getNetworkConfig().addAddress(remoteChatBalancer.getPublicIPServerURL());
+
+                        hzRemoteChatListClient = HazelcastClient.newHazelcastClient(clientRemoteConfig);
+                        final ClientService clientService = hzRemoteChatListClient.getClientService();
+
+                        clientService.addClientListener(new ClientListener() {
+                            @Override
+                            public void clientConnected(Client client) {
+                                //Handle client connected event
+                            }
+
+                            @Override
+                            public void clientDisconnected(Client client) {
+                                hzRemoteChatListClient.shutdown();
+                            }
+                        });
+                    }
+
+                }
+            });
         }
-
     }
 
     public void registerClient(String userName) {
         this.userName = userName;
-        this.hzRemoteUserName = "r_"+userName;
+        this.hzRemoteUserName = "r_" + userName;
     }
 
     public Map<String, Chat> getChatList(EntryListener<String, Chat> entryListener) {
@@ -82,17 +124,16 @@ public class HazelcastService {
         return resultMap;
     }
 
-    public String createNewChat(String newChat, boolean isPublic) {
+    public void createNewChat(String newChat, boolean isPublic) {
         if (isPublic) {
             if (hzRemoteChatListClient != null) {
-                Chat chat = new Chat(newChat, remoteChatsLoader.getPublicServer(), true);
+                Chat chat = remoteChatBalancer.createNewRemoteChat(newChat);
                 hzRemoteChatListClient.getMap(MAP_CHATS).put(newChat, chat);
-                return "success";
+                return;
             }
         }
         Chat chat = new Chat(newChat);
         hzChatListClient.getMap(MAP_CHATS).put(newChat, chat);
-        return "success";
     }
 
     //При подключении к чату создаем клиента и сервер.

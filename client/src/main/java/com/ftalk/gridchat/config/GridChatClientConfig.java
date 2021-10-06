@@ -1,8 +1,9 @@
 package com.ftalk.gridchat.config;
 
+import com.ftalk.gridchat.balancer.RemoteChatBalancer;
+import com.ftalk.gridchat.balancer.impl.RemoteChatBalancerImpl;
 import com.ftalk.gridchat.dto.GridChatConstants;
-import com.ftalk.gridchat.dto.Server;
-import com.ftalk.gridchat.hazelcast.RemoteChatsLoader;
+import com.ftalk.gridchat.hazelcast.PublicIPLoader;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.HazelcastInstance;
@@ -11,17 +12,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
 import java.util.UUID;
-
-import static com.ftalk.gridchat.dto.GridChatConstants.CLUSTER_SUPER_CLUSTER;
 
 @Configuration
 public class GridChatClientConfig {
-    private final RemoteChatsLoader remoteChatsLoader;
 
-    public GridChatClientConfig(RemoteChatsLoader remoteChatsLoader) {
-        this.remoteChatsLoader = remoteChatsLoader;
+    private final PublicIPLoader publicIPLoader;
+
+    public GridChatClientConfig(PublicIPLoader publicIPLoader) {
+        this.publicIPLoader = publicIPLoader;
+    }
+
+    @Bean
+    RemoteChatBalancer remoteChatBalancer() {
+        return new RemoteChatBalancerImpl(publicIPLoader);
     }
 
     @Bean
