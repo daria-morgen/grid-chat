@@ -3,7 +3,10 @@ package com.ftalk.gridchat.config;
 import com.ftalk.gridchat.dto.Chat;
 import com.ftalk.gridchat.dto.GridChatConstants;
 import com.ftalk.gridchat.dto.Server;
+import com.ftalk.gridchat.hazelcast.RemoteServersLoader;
 import com.hazelcast.config.Config;
+import com.hazelcast.config.JoinConfig;
+import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
@@ -24,15 +27,26 @@ public class GridChatConfig {
     private String publicIP;
 
     @Bean
-    public HazelcastInstance hazelcastInstance() {
+    public HazelcastInstance hazelcastInstance(RemoteServersLoader remoteServersLoader) {
         //Следующий код запускает члена Hazelcast, который хранит список доступных чатов
         Config cfg = new Config();
 
         if (isSuperCluster) {
             //супер кластер - сервер с публичным IP, хранит в себе список доступных чатов со всех доступных узлов,
             //Также хранит все чаты, которые проходят через него.
-            cfg.setClusterName(GridChatConstants.CLUSTER_SUPER_CLUSTER);
             cfg.getNetworkConfig().setPublicAddress(publicIP);
+
+            NetworkConfig network = cfg.getNetworkConfig();
+
+            JoinConfig join = network.getJoin(); //todo добавить загрузчик public IP
+            if (remoteServersLoader.getPublicIPServers().size() > 0) {
+                remoteServersLoader.getPublicIPServers().forEach(e ->
+                        join.getTcpIpConfig().addMember(e.getHost()+":"+e.getPort())
+                );
+            }
+
+            join.getTcpIpConfig().setRequiredMember(null).setEnabled(true);
+            cfg.setClusterName(GridChatConstants.CLUSTER_SUPER_CLUSTER);
         } else {
             //локальный кластер, созданный по умолчанию хранит только список чатов
             cfg.setClusterName(GridChatConstants.CLUSTER_CHAT_LIST);
