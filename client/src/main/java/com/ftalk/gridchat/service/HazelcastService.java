@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -74,7 +75,12 @@ public class HazelcastService {
         resultMap.putAll(iChats);
 
         if (hzRemoteChatListClient != null) {
-            IMap<String, Chat> iRemoteChats = HZCollectionsUtils.getIChats(hzRemoteChatListClient);
+            IMap<String, Chat> iRemoteChats;
+//            try {
+                iRemoteChats = HZCollectionsUtils.getIChats(hzRemoteChatListClient);
+//            }catch (Exception e){
+//                iRemoteChats = restTemplate.getRemoteChatList(remoteChatBalancer.getPublicIPServerURL());
+//            }
             iRemoteChats.addEntryListener(entryListener, true);
             resultMap.putAll(iRemoteChats);
         }

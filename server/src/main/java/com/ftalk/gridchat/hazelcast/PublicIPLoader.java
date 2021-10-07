@@ -8,13 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class RemoteServersLoader {
+public class PublicIPLoader {
 
     private List<Server> publicIPServers = new ArrayList<>();
 
     //todo added remote loader
     public List<Server> getPublicIPServers() {
         publicIPServers.add(new Server("194.87.248.33", "5701"));
+        publicIPServers.add(new Server("194.87.238.141", "5701"));
         return this.publicIPServers;
     }
 

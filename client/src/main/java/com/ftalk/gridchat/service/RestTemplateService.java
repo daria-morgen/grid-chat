@@ -1,5 +1,6 @@
 package com.ftalk.gridchat.service;
 
+import com.ftalk.gridchat.dto.Chat;
 import com.ftalk.gridchat.dto.Request;
 import com.ftalk.gridchat.dto.Response;
 import com.hazelcast.core.HazelcastInstance;
@@ -35,5 +36,10 @@ public class RestTemplateService {
     public void createNewChat(String newChat) {
         restTemplate.postForObject(
                 host+"/createServerInstance", newChat, Integer.class);
+    }
+
+    public IMap<String, Chat> getRemoteChatList(String url){
+       return restTemplate.getForObject(
+                host+"/hazelcast/rest/maps/mapName/chats", IMap.class);
     }
 }

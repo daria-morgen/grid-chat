@@ -3,7 +3,7 @@ package com.ftalk.gridchat.config;
 import com.ftalk.gridchat.dto.Chat;
 import com.ftalk.gridchat.dto.GridChatConstants;
 import com.ftalk.gridchat.dto.Server;
-import com.ftalk.gridchat.hazelcast.RemoteServersLoader;
+import com.ftalk.gridchat.hazelcast.PublicIPLoader;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.NetworkConfig;
@@ -27,7 +27,7 @@ public class GridChatConfig {
     private String publicIP;
 
     @Bean
-    public HazelcastInstance hazelcastInstance(RemoteServersLoader remoteServersLoader) {
+    public HazelcastInstance hazelcastInstance(PublicIPLoader publicIPLoader) {
         //Следующий код запускает члена Hazelcast, который хранит список доступных чатов
         Config cfg = new Config();
 
@@ -37,11 +37,14 @@ public class GridChatConfig {
             cfg.getNetworkConfig().setPublicAddress(publicIP);
 
             NetworkConfig network = cfg.getNetworkConfig();
+            network.getRestApiConfig().setEnabled(true);
 
             JoinConfig join = network.getJoin(); //todo добавить загрузчик public IP
-            if (remoteServersLoader.getPublicIPServers().size() > 0) {
-                remoteServersLoader.getPublicIPServers().forEach(e ->
-                        join.getTcpIpConfig().addMember(e.getHost()+":"+e.getPort())
+            if (publicIPLoader.getPublicIPServers().size() > 0) {
+                publicIPLoader.getPublicIPServers().forEach(e -> {
+                            if (!e.getURL().equals(this.publicIP))
+                                join.getTcpIpConfig().addMember(e.getURL());
+                        }
                 );
             }
 
