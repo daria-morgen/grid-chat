@@ -80,7 +80,6 @@ public class HazelcastService {
         }
 
         return resultMap.values().stream().
-
                 filter(this::isChatAvailable
                 ).collect(Collectors.toList());
     }
@@ -181,13 +180,13 @@ public class HazelcastService {
     }
 
     private boolean isChatAvailable(Chat e) {
-        if (chat.isPrivate() &&
-                (chat.getUserNames().contains(this.userName) || chat.getCreatorName().equals(this.userName))) {
+        if (e.isPrivate() &&
+                (e.getUserNames().contains(this.userName) || e.getCreatorName().equals(this.userName))) {
             return true;
-        } else if (chat.isTransfer())
+        } else if (e.isTransfer())
             return true;
 
-        return !chat.isPrivate();
+        return !e.isPrivate();
     }
 
     public boolean isChatAvailable(EntryEvent<String, Chat> entryEvent) {
