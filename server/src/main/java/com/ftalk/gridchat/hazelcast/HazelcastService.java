@@ -29,19 +29,19 @@ public class HazelcastService {
 
         Config cfg = new Config();
         cfg.setClusterName(chat.getCode());
-        if (chat.isPrivate()) {
-            cfg.setLiteMember(true);
-            PermissionConfig allPermission = new PermissionConfig(
-                    PermissionConfig.PermissionType.QUEUE,
-                    chat.getCode(),
-                    chat.getCode()
-            );
-
-            cfg.getSecurityConfig()
-                    .setEnabled(true)
-                    .setOnJoinPermissionOperation(OnJoinPermissionOperationName.NONE)
-                    .addClientPermissionConfig(allPermission);
-        }
+//        if (chat.isPrivate()) {
+//            cfg.setLiteMember(true);
+//            PermissionConfig allPermission = new PermissionConfig(
+//                    PermissionConfig.PermissionType.QUEUE,
+//                    chat.getCode(),
+//                    chat.getCode()
+//            );
+//
+//            cfg.getSecurityConfig()
+//                    .setEnabled(true)
+//                    .setOnJoinPermissionOperation(OnJoinPermissionOperationName.NONE)
+//                    .addClientPermissionConfig(allPermission);
+//        }
         return this.instanceOfChat = Hazelcast.newHazelcastInstance(cfg);
 
     }
