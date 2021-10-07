@@ -17,12 +17,12 @@ public class RemoteChatBalancerImpl implements RemoteChatBalancer {
     }
 
     @Override
-    public Chat createNewRemoteChat(String chatName) {
+    public Chat createNewRemoteChat(String chatName, String creatorName) {
         List<Server> publicIPServers =
                 publicIPLoader.getPublicIPServers();
 
         //todo придумать логику определения загруженности удаленных серверов.
-        return new Chat(chatName, publicIPServers.get(0), true);
+        return new Chat(chatName, publicIPServers.get(0), true,creatorName);
     }
 
     @Override

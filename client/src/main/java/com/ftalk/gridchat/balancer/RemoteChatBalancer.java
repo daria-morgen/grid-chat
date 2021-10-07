@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface RemoteChatBalancer {
 
-    Chat createNewRemoteChat(String chatName);
+    Chat createNewRemoteChat(String chatName, String creatorName);
 
     int getPublicIPSize();
 

@@ -1,5 +1,6 @@
 package com.ftalk.gridchat.controller;
 
+import com.ftalk.gridchat.dto.Chat;
 import com.ftalk.gridchat.hazelcast.HazelcastService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,8 +21,8 @@ public class ServerController {
     }
 
     @PostMapping("/createServerInstance")
-    public int createServerInstance(@RequestBody String clusterName) {
-        hazelcastService.createInstance(clusterName);
+    public int createServerInstance(@RequestBody Chat chat) {
+        hazelcastService.createInstance(chat);
         return 0;
     }
 }

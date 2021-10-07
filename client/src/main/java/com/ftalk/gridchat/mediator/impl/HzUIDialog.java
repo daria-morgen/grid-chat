@@ -12,9 +12,10 @@ import com.hazelcast.core.EntryListener;
 import com.hazelcast.map.MapEvent;
 import javafx.application.Platform;
 import javafx.scene.control.*;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Queue;
 
 @Component
@@ -28,7 +29,11 @@ public class HzUIDialog implements Mediator {
 
     private Button nChatButton;
 
-    private CheckBox nChatCheckBox;
+    private CheckBox nChatPrivateCheckBox;
+
+    private TextField nChatPrivateTextField;
+
+    private CheckBox nChatRemoteCheckBox;
 
     private ListView chatListView;
 
@@ -59,16 +64,21 @@ public class HzUIDialog implements Mediator {
                             //для 1 клиента он будет пуст. Подписываемся на обновление этого списка.
                             //в локальном кластере(chats_cluster) хранится только список чатов.
 //                            for (Map<String, Chat> chat : ) {
-                            getChatList().forEach((k, v) -> this.chatListView.getItems().add(v.getName()));
+                            getChatList().forEach(e -> this.chatListView.getItems().add(e.getName()));
 
                             this.nChatTextField.setDisable(false);
-                            this.nChatButton.setDisable(false);
-                            this.nChatCheckBox.setDisable(false);
+                            this.nChatPrivateCheckBox.setDisable(false);
+                            this.nChatRemoteCheckBox.setDisable(false);
                             this.chatListView.setDisable(false);
+                            this.nChatButton.setDisable(false);
+
                         }
                 );
                 break;
             case REGISTER_LISTENERS:
+                this.nChatPrivateCheckBox.setOnMouseClicked(e -> {
+                    this.nChatPrivateTextField.setDisable(!nChatPrivateTextField.isDisable());
+                });
                 this.chatListView.setOnMouseClicked(e -> {
                     if (e.getClickCount() > 1) {
                         chatTextArea.clear();
@@ -102,8 +112,24 @@ public class HzUIDialog implements Mediator {
                     }
                 });
 
-                this.nChatButton.setOnAction(actionEvent -> {
-                    hazelcastService.createNewChat(nChatTextField.getText(), nChatCheckBox.isSelected());
+                this.nChatButton.setOnMouseClicked(actionEvent -> {
+                    if (nChatTextField.getText().isEmpty())
+                        return;
+
+                    if (nChatPrivateCheckBox.isSelected() && !nChatRemoteCheckBox.isSelected())
+                        hazelcastService.createNewPrivateChat(nChatTextField.getText(), nChatPrivateTextField.getText());
+
+                    if (!nChatPrivateCheckBox.isSelected() && !nChatRemoteCheckBox.isSelected())
+                        hazelcastService.createNewLocalChat(nChatTextField.getText());
+
+                    if (!nChatPrivateCheckBox.isSelected() && nChatRemoteCheckBox.isSelected())
+                        hazelcastService.createNewRemoteChat(nChatTextField.getText());
+
+                    if (nChatPrivateCheckBox.isSelected() && !nChatRemoteCheckBox.isSelected())
+                        hazelcastService.createNewPrivateRemoteChat(nChatTextField.getText(), nChatPrivateTextField.getText());
+
+
+                    nChatTextField.setText(Strings.EMPTY);
                 });
 
                 this.sendMessageButton.setOnAction(actionEvent -> {
@@ -130,7 +156,13 @@ public class HzUIDialog implements Mediator {
                 this.nChatButton = (Button) uiSender;
                 break;
             case N_CHAT_CHECK_BOX:
-                this.nChatCheckBox = (CheckBox) uiSender;
+                this.nChatPrivateCheckBox = (CheckBox) uiSender;
+                break;
+            case N_CHAT_LOCAL_CHECK_BOX:
+                this.nChatRemoteCheckBox = (CheckBox) uiSender;
+                break;
+            case N_CHAT_PRIVATE_TEXT_FIELD:
+                this.nChatPrivateTextField = (TextField) uiSender;
                 break;
             case CHAT_LIST_VIEW:
                 this.chatListView = (ListView) uiSender;
@@ -151,7 +183,7 @@ public class HzUIDialog implements Mediator {
         }
     }
 
-    private Map<String, Chat> getChatList() {
+    private List<Chat> getChatList() {
         return hazelcastService.getChatList(new EntryListener<String, Chat>() {
             @Override
             public void mapEvicted(MapEvent mapEvent) {

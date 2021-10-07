@@ -33,9 +33,9 @@ public class RestTemplateService {
                 host+"/sendMessage", new Request(message), Response.class);
     }
 
-    public void createNewChat(String newChat) {
+    public void createNewChat(Chat chat) {
         restTemplate.postForObject(
-                host+"/createServerInstance", newChat, Integer.class);
+                host+"/createServerInstance", chat, Integer.class);
     }
 
     public IMap<String, Chat> getRemoteChatList(String url){

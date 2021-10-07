@@ -15,12 +15,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.ftalk.gridchat.dto.GridChatConstants.*;
 
@@ -68,7 +65,7 @@ public class HazelcastService {
         this.hzRemoteUserName = "r_" + userName;
     }
 
-    public Map<String, Chat> getChatList(EntryListener<String, Chat> entryListener) {
+    public List<Chat> getChatList(EntryListener<String, Chat> entryListener) {
         Map<String, Chat> resultMap = new HashMap<>();
         IMap<String, Chat> iChats = HZCollectionsUtils.getIChats(hzChatListClient);
         iChats.addEntryListener(entryListener, true);
@@ -76,27 +73,43 @@ public class HazelcastService {
 
         if (hzRemoteChatListClient != null) {
             IMap<String, Chat> iRemoteChats;
-//            try {
-                iRemoteChats = HZCollectionsUtils.getIChats(hzRemoteChatListClient);
-//            }catch (Exception e){
-//                iRemoteChats = restTemplate.getRemoteChatList(remoteChatBalancer.getPublicIPServerURL());
-//            }
+            iRemoteChats = HZCollectionsUtils.getIChats(hzRemoteChatListClient);
             iRemoteChats.addEntryListener(entryListener, true);
             resultMap.putAll(iRemoteChats);
         }
 
-        return resultMap;
+        return resultMap.values().stream().filter(e -> {
+            if (e.isPrivate() && (e.getUserNames().contains(this.userName) || e.getCreatorName().equals(this.userName))) {
+                return true;
+            } else if (e.isTransfer())
+                return true;
+
+            return !e.isPrivate();
+
+        }).collect(Collectors.toList());
     }
 
-    public void createNewChat(String newChat, boolean isPublic) {
-        if (isPublic) {
-            if (hzRemoteChatListClient != null) {
-                Chat chat = remoteChatBalancer.createNewRemoteChat(newChat);
-                hzRemoteChatListClient.getMap(MAP_CHATS).put(newChat, chat);
-                return;
-            }
+    public void createNewRemoteChat(String newChat) {
+        if (hzRemoteChatListClient != null) {
+            Chat chat = remoteChatBalancer.createNewRemoteChat(newChat, this.userName);
+            hzRemoteChatListClient.getMap(MAP_CHATS).put(newChat, chat);
         }
-        Chat chat = new Chat(newChat);
+    }
+
+    public void createNewPrivateRemoteChat(String newChat, String toUserName) {
+        if (hzRemoteChatListClient != null) {
+            Chat chat = new Chat(newChat, true, Collections.singletonList(toUserName), this.userName);
+            hzRemoteChatListClient.getMap(MAP_CHATS).put(newChat, chat);
+        }
+    }
+
+    public void createNewPrivateChat(String newChat, String toUserName) {
+        Chat chat = new Chat(newChat, true, Collections.singletonList(toUserName), this.userName);
+        hzChatListClient.getMap(MAP_CHATS).put(newChat, chat);
+    }
+
+    public void createNewLocalChat(String newChat) {
+        Chat chat = new Chat(newChat, this.userName);
         hzChatListClient.getMap(MAP_CHATS).put(newChat, chat);
     }
 
@@ -145,7 +158,7 @@ public class HazelcastService {
             }
 
             //Для локального чата создаем отдельный инстанс server для конкретного чата
-            restTemplate.createNewChat(this.chat.getCode());
+            restTemplate.createNewChat(this.chat);
 
             //Для локального чата создаем клиента
             ClientConfig clientRemoteConfig = new ClientConfig();
