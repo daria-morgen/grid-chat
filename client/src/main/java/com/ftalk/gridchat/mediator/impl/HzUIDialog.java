@@ -63,6 +63,7 @@ public class HzUIDialog implements Mediator {
 
                             this.nChatTextField.setDisable(false);
                             this.nChatButton.setDisable(false);
+                            this.nChatCheckBox.setDisable(false);
                             this.chatListView.setDisable(false);
                         }
                 );
