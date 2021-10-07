@@ -8,6 +8,7 @@ import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientNetworkConfig;
 import com.hazelcast.collection.IQueue;
 import com.hazelcast.collection.ItemListener;
+import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
@@ -78,15 +79,10 @@ public class HazelcastService {
             resultMap.putAll(iRemoteChats);
         }
 
-        return resultMap.values().stream().filter(e -> {
-            if (e.isPrivate() && (e.getUserNames().contains(this.userName) || e.getCreatorName().equals(this.userName))) {
-                return true;
-            } else if (e.isTransfer())
-                return true;
+        return resultMap.values().stream().
 
-            return !e.isPrivate();
-
-        }).collect(Collectors.toList());
+                filter(this::isChatAvailable
+                ).collect(Collectors.toList());
     }
 
     public void createNewRemoteChat(String newChat) {
@@ -184,5 +180,19 @@ public class HazelcastService {
         }
     }
 
+    private boolean isChatAvailable(Chat e) {
+        if (chat.isPrivate() &&
+                (chat.getUserNames().contains(this.userName) || chat.getCreatorName().equals(this.userName))) {
+            return true;
+        } else if (chat.isTransfer())
+            return true;
+
+        return !chat.isPrivate();
+    }
+
+    public boolean isChatAvailable(EntryEvent<String, Chat> entryEvent) {
+        Chat chat = entryEvent.getValue();
+        return isChatAvailable(chat);
+    }
 }
 

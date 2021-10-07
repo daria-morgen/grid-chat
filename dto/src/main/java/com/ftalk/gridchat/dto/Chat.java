@@ -30,7 +30,7 @@ public class Chat implements Serializable {
         this.code = UUID.randomUUID().toString().substring(0, 10);
         this.creatorName= creatorName;
     }
-    public Chat(String name, boolean isPrivate, List<String> userNames,String creatorName) {
+    public Chat(String name, boolean isPrivate, List<String> userNames, String creatorName) {
         this.name = name;
         this.code = UUID.randomUUID().toString().substring(0, 10);
         this.isPrivate = isPrivate;

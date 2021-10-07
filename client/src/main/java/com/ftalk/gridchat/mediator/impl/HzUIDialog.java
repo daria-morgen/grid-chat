@@ -12,7 +12,6 @@ import com.hazelcast.core.EntryListener;
 import com.hazelcast.map.MapEvent;
 import javafx.application.Platform;
 import javafx.scene.control.*;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -125,11 +124,11 @@ public class HzUIDialog implements Mediator {
                     if (!nChatPrivateCheckBox.isSelected() && nChatRemoteCheckBox.isSelected())
                         hazelcastService.createNewRemoteChat(nChatTextField.getText());
 
-                    if (nChatPrivateCheckBox.isSelected() && !nChatRemoteCheckBox.isSelected())
+                    if (nChatPrivateCheckBox.isSelected() && nChatRemoteCheckBox.isSelected())
                         hazelcastService.createNewPrivateRemoteChat(nChatTextField.getText(), nChatPrivateTextField.getText());
 
 
-                    nChatTextField.setText(Strings.EMPTY);
+//                    nChatTextField.setText(Strings.EMPTY);
                 });
 
                 this.sendMessageButton.setOnAction(actionEvent -> {
@@ -197,7 +196,10 @@ public class HzUIDialog implements Mediator {
 
             @Override
             public void entryUpdated(EntryEvent<String, Chat> entryEvent) {
-                Platform.runLater(() -> chatListView.getItems().add(entryEvent.getValue().getName()));
+                Platform.runLater(() -> {
+                    if (hazelcastService.isChatAvailable(entryEvent))
+                        chatListView.getItems().add(entryEvent.getValue().getName());
+                });
             }
 
             @Override
