@@ -16,4 +16,7 @@ public interface RemoteChatBalancer {
     String getAnotherPublicIPServerURL(String currentURL);
 
     List<Server> getPublicIPServers();
+
+    Chat createNewRemoteChat(String newChat, boolean b, String toUserName, String userName);
+
 }

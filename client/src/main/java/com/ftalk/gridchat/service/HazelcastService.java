@@ -93,13 +93,13 @@ public class HazelcastService {
 
     public void createNewPrivateRemoteChat(String newChat, String toUserName) {
         if (hzRemoteChatListClient != null) {
-            Chat chat = new Chat(newChat, true, true,Collections.singletonList(toUserName), this.userName);
+            Chat chat = remoteChatBalancer.createNewRemoteChat(newChat, true,toUserName, this.userName);
             hzRemoteChatListClient.getMap(MAP_CHATS).put(newChat, chat);
         }
     }
 
     public void createNewPrivateChat(String newChat, boolean isPrivate, String toUserName) {
-        Chat chat = remoteChatBalancer.createNewRemoteChat(newChat, isPrivate, this.userName);
+        Chat chat = new Chat(newChat, true, false,Collections.singletonList(toUserName), this.userName);
         hzChatListClient.getMap(MAP_CHATS).put(newChat, chat);
     }
 
@@ -183,7 +183,7 @@ public class HazelcastService {
         if (e.isPrivate() &&
                 (e.getUserNames().contains(this.userName) || e.getCreatorName().equals(this.userName))) {
             return true;
-        } else if (e.isTransfer())
+        } else if ((e.isTransfer()&&!e.isPrivate())||(e.isTransfer()&&e.isPrivate()&&(e.getUserNames().contains(this.userName) || e.getCreatorName().equals(this.userName))))
             return true;
 
         return !e.isPrivate();

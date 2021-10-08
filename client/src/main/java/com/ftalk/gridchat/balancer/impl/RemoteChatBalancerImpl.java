@@ -6,6 +6,7 @@ import com.ftalk.gridchat.dto.Server;
 import com.ftalk.gridchat.hazelcast.PublicIPLoader;
 import org.apache.logging.log4j.util.Strings;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,9 +21,10 @@ public class RemoteChatBalancerImpl implements RemoteChatBalancer {
     public Chat createNewRemoteChat(String chatName, boolean isPrivate, String creatorName) {
         List<Server> publicIPServers =
                 publicIPLoader.getPublicIPServers();
+//        Chat chat = new Chat(newChat, true, true, Collections.singletonList(toUserName), this.userName);
 
         //todo придумать логику определения загруженности удаленных серверов.
-        return new Chat(chatName,isPrivate, publicIPServers.get(0), true,creatorName);
+        return new Chat(chatName, isPrivate,  publicIPServers.get(0), true,creatorName);
     }
 
     @Override
@@ -47,6 +49,19 @@ public class RemoteChatBalancerImpl implements RemoteChatBalancer {
     @Override
     public List<Server> getPublicIPServers() {
         return publicIPLoader.getPublicIPServers();
+    }
+
+    @Override
+    public Chat createNewRemoteChat(String newChat, boolean isPrivate, String toUserName, String creatorName) {
+        List<Server> publicIPServers =
+                publicIPLoader.getPublicIPServers();
+//        Chat chat = new Chat(newChat, true, true, Collections.singletonList(toUserName), this.userName);
+
+        //todo придумать логику определения загруженности удаленных серверов.
+        Chat chat = new Chat(newChat, isPrivate, publicIPServers.get(0),true, creatorName);
+        chat.setUserNames(Collections.singletonList(toUserName));
+        return chat;
+
     }
 
 }
