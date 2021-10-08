@@ -47,4 +47,12 @@ public class Chat implements Serializable {
         this.creatorName= creatorName;
     }
 
+    public Chat(String chatName, boolean isPrivate, Server server, boolean b, String creatorName) {
+        this.name = name;
+        this.server = server;
+        this.isTransfer = true;
+        this.isPrivate = isPrivate;
+        this.code = UUID.randomUUID().toString().substring(0, 10);
+        this.creatorName= creatorName;
+    }
 }

@@ -116,7 +116,7 @@ public class HzUIDialog implements Mediator {
                         return;
 
                     if (nChatPrivateCheckBox.isSelected() && !nChatRemoteCheckBox.isSelected())
-                        hazelcastService.createNewPrivateChat(nChatTextField.getText(), nChatPrivateTextField.getText());
+                        hazelcastService.createNewPrivateChat(nChatTextField.getText(), true, nChatPrivateTextField.getText());
 
                     if (!nChatPrivateCheckBox.isSelected() && !nChatRemoteCheckBox.isSelected())
                         hazelcastService.createNewLocalChat(nChatTextField.getText());
