@@ -93,13 +93,13 @@ public class HazelcastService {
 
     public void createNewPrivateRemoteChat(String newChat, String toUserName) {
         if (hzRemoteChatListClient != null) {
-            Chat chat = new Chat(newChat, true, Collections.singletonList(toUserName), this.userName);
+            Chat chat = new Chat(newChat, true, true,Collections.singletonList(toUserName), this.userName);
             hzRemoteChatListClient.getMap(MAP_CHATS).put(newChat, chat);
         }
     }
 
     public void createNewPrivateChat(String newChat, String toUserName) {
-        Chat chat = new Chat(newChat, true, Collections.singletonList(toUserName), this.userName);
+        Chat chat = new Chat(newChat, true, false,Collections.singletonList(toUserName), this.userName);
         hzChatListClient.getMap(MAP_CHATS).put(newChat, chat);
     }
 
