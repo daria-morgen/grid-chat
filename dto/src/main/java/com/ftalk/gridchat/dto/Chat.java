@@ -8,8 +8,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true)
 @Builder
+@AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Chat implements Serializable {
     private String name;
     private String code;

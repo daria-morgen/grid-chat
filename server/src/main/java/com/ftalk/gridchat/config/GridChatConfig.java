@@ -64,10 +64,13 @@ public class GridChatConfig {
         if (isSuperCluster) {
             IMap<String, Chat> chats = instance.getMap(MAP_CHATS);
             chats.put("remote_cool_chat",
-                    new Chat("remote_cool_chat",
-                            new Server("194.87.248.33", "5701"),
-                            true,
-                            "default")
+                    Chat.builder()
+                            .name("remote_cool_chat")
+                            .server(
+                                    new Server("194.87.248.33", "5701"))
+                            .isTransfer(true)
+                            .creatorName("default")
+                            .build()
             );
             return chats;
         }
