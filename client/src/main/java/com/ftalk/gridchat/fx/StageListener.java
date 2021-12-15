@@ -1,4 +1,4 @@
-package com.ftalk.gridchat;
+package com.ftalk.gridchat.fx;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

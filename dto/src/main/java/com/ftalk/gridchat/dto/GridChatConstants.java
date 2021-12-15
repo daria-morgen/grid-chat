@@ -8,7 +8,7 @@ public class GridChatConstants {
     //Map со списком удаленных чатов
     public static final String REMOTE_MAP_CHATS = "REMOTE_MAP_CHATS";
 
-    //Имя локального кластера, хранящего скиски чатов
+    //Имя локального кластера, хранящего списки чатов
     public static final String CLUSTER_CHAT_LIST = "CLUSTER_CHAT_LIST";
 
     //Имя супер кластера

@@ -21,10 +21,14 @@ public class RemoteChatBalancerImpl implements RemoteChatBalancer {
     public Chat createNewRemoteChat(String chatName, boolean isPrivate, String creatorName) {
         List<Server> publicIPServers =
                 publicIPLoader.getPublicIPServers();
-//        Chat chat = new Chat(newChat, true, true, Collections.singletonList(toUserName), this.userName);
-
-        //todo придумать логику определения загруженности удаленных серверов.
-        return new Chat(chatName, isPrivate,  publicIPServers.get(0), true,creatorName);
+        //todo логика определение загруженности удаленных серверов.
+        return Chat.builder()
+                .name(chatName)
+                .isPrivate(isPrivate)
+                .server(publicIPServers.get(0))
+                .isTransfer(true)
+                .creatorName(creatorName)
+                .build();
     }
 
     @Override
@@ -57,8 +61,14 @@ public class RemoteChatBalancerImpl implements RemoteChatBalancer {
                 publicIPLoader.getPublicIPServers();
 //        Chat chat = new Chat(newChat, true, true, Collections.singletonList(toUserName), this.userName);
 
-        //todo придумать логику определения загруженности удаленных серверов.
-        Chat chat = new Chat(newChat, isPrivate, publicIPServers.get(0),true, creatorName);
+        //todo  определение загруженности удаленных серверов.
+        Chat chat = Chat.builder()
+                .name(newChat)
+                .isPrivate(isPrivate)
+                .server(publicIPServers.get(0))
+                .isTransfer(true)
+                .creatorName(creatorName)
+                .build();
         chat.setUserNames(Collections.singletonList(toUserName));
         return chat;
 

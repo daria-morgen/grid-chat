@@ -1,10 +1,7 @@
 package com.ftalk.gridchat.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.List;
@@ -12,6 +9,7 @@ import java.util.UUID;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Builder
 public class Chat implements Serializable {
     private String name;
     private String code;
@@ -25,34 +23,4 @@ public class Chat implements Serializable {
     public Chat() {
     }
 
-    public Chat(String name, String creatorName) {
-        this.name = name;
-        this.code = UUID.randomUUID().toString().substring(0, 10);
-        this.creatorName= creatorName;
-    }
-    public Chat(String name, boolean isPrivate,boolean isRemote, List<String> userNames, String creatorName) {
-        this.name = name;
-        this.code = UUID.randomUUID().toString().substring(0, 10);
-        this.isPrivate = isPrivate;
-        this.isTransfer = isRemote;
-        this.userNames = userNames;
-        this.creatorName= creatorName;
-    }
-
-    public Chat(String name, Server server, boolean isTransfer,String creatorName) {
-        this.name = name;
-        this.server = server;
-        this.isTransfer = isTransfer;
-        this.code = UUID.randomUUID().toString().substring(0, 10);
-        this.creatorName= creatorName;
-    }
-
-    public Chat(String chatName, boolean isPrivate, Server server, boolean b, String creatorName) {
-        this.name = name;
-        this.server = server;
-        this.isTransfer = true;
-        this.isPrivate = isPrivate;
-        this.code = UUID.randomUUID().toString().substring(0, 10);
-        this.creatorName= creatorName;
-    }
 }

@@ -1,4 +1,4 @@
-package com.ftalk.gridchat;
+package com.ftalk.gridchat.fx;
 
 import com.ftalk.gridchat.dto.Events;
 import com.ftalk.gridchat.dto.UIComponentNames;

@@ -1,5 +1,6 @@
 package com.ftalk.gridchat;
 
+import com.ftalk.gridchat.fx.ClientFxApplication;
 import javafx.application.Application;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

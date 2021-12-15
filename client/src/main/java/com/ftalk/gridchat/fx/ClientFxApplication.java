@@ -1,5 +1,6 @@
-package com.ftalk.gridchat;
+package com.ftalk.gridchat.fx;
 
+import com.ftalk.gridchat.ClientApplication;
 import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.application.Platform;
